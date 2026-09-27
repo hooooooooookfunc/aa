@@ -4,7 +4,7 @@
 
 local AstralisLib = {
 	SoundEnabled = true,
-	ToggleOnColor = Color3.fromRGB(40, 175, 75) -- Green when ON
+	AccentColor = Color3.fromRGB(40, 175, 75) -- Green when ON
 }
 
 local Players = game:GetService("Players")
@@ -268,7 +268,6 @@ function AstralisLib:CreateWindow(config)
 			ActiveTabIndex = tabIndex
 			for idx, p in ipairs(Pages) do
 				p.Visible = (idx == tabIndex)
-				-- Neutral Dark Gray for selected tab (NO GREEN)
 				Tabs[idx].BackgroundColor3 = (idx == tabIndex) and Color3.fromRGB(50, 50, 55) or Color3.fromRGB(28, 28, 30)
 				Tabs[idx].TextColor3 = (idx == tabIndex) and Color3.new(1, 1, 1) or Color3.fromRGB(200, 200, 200)
 			end
@@ -291,7 +290,6 @@ function AstralisLib:CreateWindow(config)
 			Holder.ZIndex = 3
 			Holder.Parent = TabPage
 
-			-- Top Row holds Title + Toggle RIGHT NEXT TO IT (8px gap)
 			local TopRow = Instance.new("Frame")
 			TopRow.Size = UDim2.new(1, 0, 0, 20)
 			TopRow.BackgroundTransparency = 1
@@ -301,11 +299,10 @@ function AstralisLib:CreateWindow(config)
 			local RowLayout = Instance.new("UIListLayout")
 			RowLayout.FillDirection = Enum.FillDirection.Horizontal
 			RowLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-			RowLayout.Padding = UDim.new(0, 8) -- Small 8px gap between text & toggle switch
+			RowLayout.Padding = UDim.new(0, 8)
 			RowLayout.SortOrder = Enum.SortOrder.LayoutOrder
 			RowLayout.Parent = TopRow
 
-			-- Title Label (Automatic X-Size to sit snug against the toggle)
 			local TitleLbl = Instance.new("TextLabel")
 			TitleLbl.AutomaticSize = Enum.AutomaticSize.X
 			TitleLbl.Size = UDim2.new(0, 0, 1, 0)
@@ -324,10 +321,9 @@ function AstralisLib:CreateWindow(config)
 			TitleStroke.Transparency = 0.3
 			TitleStroke.Parent = TitleLbl
 
-			-- Compact Sliding Track (Green when ON, Red when OFF)
 			local Track = Instance.new("Frame")
 			Track.Size = UDim2.new(0, 34, 0, 18)
-			Track.BackgroundColor3 = default and AstralisLib.ToggleOnColor or Color3.fromRGB(180, 45, 45)
+			Track.BackgroundColor3 = default and AstralisLib.AccentColor or Color3.fromRGB(180, 45, 45)
 			Track.LayoutOrder = 2
 			Track.ZIndex = 4
 			Track.Parent = TopRow
@@ -338,7 +334,6 @@ function AstralisLib:CreateWindow(config)
 			TrackStroke.Thickness = 1.1
 			TrackStroke.Parent = Track
 
-			-- Knob inside track
 			local Knob = Instance.new("Frame")
 			Knob.Size = UDim2.new(0, 14, 0, 14)
 			Knob.Position = default and UDim2.new(0, 18, 0.5, -7) or UDim2.new(0, 2, 0.5, -7)
@@ -347,7 +342,6 @@ function AstralisLib:CreateWindow(config)
 			Knob.Parent = Track
 			addCorner(Knob, 7)
 
-			-- Description (Below TopRow)
 			local DescLbl = Instance.new("TextLabel")
 			DescLbl.Size = UDim2.new(1, 0, 0, 14)
 			DescLbl.Position = UDim2.new(0, 0, 0, 22)
@@ -360,16 +354,9 @@ function AstralisLib:CreateWindow(config)
 			DescLbl.ZIndex = 4
 			DescLbl.Parent = Holder
 
-			local DescStroke = Instance.new("UIStroke")
-			DescStroke.Color = Color3.fromRGB(0, 0, 0)
-			DescStroke.Thickness = 1
-			DescStroke.Transparency = 0.4
-			DescStroke.Parent = DescLbl
-
 			local state = default
 			local info = TweenInfo.new(0.14, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
-			-- Whole row clickable
 			local Hit = Instance.new("TextButton")
 			Hit.Size = UDim2.new(1, 0, 1, 0)
 			Hit.BackgroundTransparency = 1
@@ -380,12 +367,15 @@ function AstralisLib:CreateWindow(config)
 			Hit.MouseButton1Click:Connect(function()
 				playSound()
 				state = not state
-				TweenService:Create(Track, info, {BackgroundColor3 = state and AstralisLib.ToggleOnColor or Color3.fromRGB(180, 45, 45)}):Play()
+				TweenService:Create(Track, info, {BackgroundColor3 = state and AstralisLib.AccentColor or Color3.fromRGB(180, 45, 45)}):Play()
 				TweenService:Create(Knob, info, {Position = state and UDim2.new(0, 18, 0.5, -7) or UDim2.new(0, 2, 0.5, -7)}):Play()
 				callback(state)
 			end)
 		end
 
+		-- ==========================================
+		-- CHUNKY SLIDER WITH TEXT CENTERED INSIDE
+		-- ==========================================
 		function TabObj:CreateSlider(options)
 			local name = options.Name or "Slider"
 			local min = options.Min or 0
@@ -394,13 +384,14 @@ function AstralisLib:CreateWindow(config)
 			local callback = options.Callback or function() end
 
 			local Holder = Instance.new("Frame")
-			Holder.Size = UDim2.new(1, 0, 0, 45)
+			Holder.Size = UDim2.new(1, 0, 0, 36)
 			Holder.BackgroundTransparency = 1
 			Holder.ZIndex = 3
 			Holder.Parent = TabPage
 
+			-- Title Label (Left)
 			local TitleLbl = Instance.new("TextLabel")
-			TitleLbl.Size = UDim2.new(0.5, 0, 0, 18)
+			TitleLbl.Size = UDim2.new(0.5, 0, 1, 0)
 			TitleLbl.BackgroundTransparency = 1
 			TitleLbl.Text = name
 			TitleLbl.Font = Enum.Font.Jura
@@ -410,21 +401,10 @@ function AstralisLib:CreateWindow(config)
 			TitleLbl.ZIndex = 4
 			TitleLbl.Parent = Holder
 
-			local ValLbl = Instance.new("TextLabel")
-			ValLbl.Size = UDim2.new(0.5, 0, 0, 18)
-			ValLbl.Position = UDim2.new(0.5, 0, 0, 0)
-			ValLbl.BackgroundTransparency = 1
-			ValLbl.Text = tostring(default)
-			ValLbl.Font = Enum.Font.Jura
-			ValLbl.TextSize = 15
-			ValLbl.TextColor3 = Color3.fromRGB(200, 200, 200)
-			ValLbl.TextXAlignment = Enum.TextXAlignment.Right
-			ValLbl.ZIndex = 4
-			ValLbl.Parent = Holder
-
+			-- Chunky Slider Track (Right side)
 			local Track = Instance.new("Frame")
-			Track.Size = UDim2.new(1, 0, 0, 12)
-			Track.Position = UDim2.new(0, 0, 0, 24)
+			Track.Size = UDim2.new(0, 150, 0, 26)
+			Track.Position = UDim2.new(1, -150, 0.5, -13)
 			Track.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 			Track.ZIndex = 4
 			Track.Parent = Holder
@@ -436,7 +416,8 @@ function AstralisLib:CreateWindow(config)
 			TrackStroke.Parent = Track
 
 			local pct = math.clamp((default - min) / (max - min), 0, 1)
-			-- Slider Fill: Original Dark Gray (RGB 55, 55, 55)
+			
+			-- Dark Grey Fill
 			local Fill = Instance.new("Frame")
 			Fill.Size = UDim2.new(pct, 0, 1, 0)
 			Fill.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
@@ -444,11 +425,23 @@ function AstralisLib:CreateWindow(config)
 			Fill.Parent = Track
 			addCorner(Fill, 6)
 
+			-- Value Text (Centered inside the track)
+			local ValLbl = Instance.new("TextLabel")
+			ValLbl.Size = UDim2.new(1, 0, 1, 0)
+			ValLbl.BackgroundTransparency = 1
+			ValLbl.Text = tostring(default)
+			ValLbl.Font = Enum.Font.Jura
+			ValLbl.TextSize = 13
+			ValLbl.TextColor3 = Color3.fromRGB(200, 200, 200)
+			ValLbl.ZIndex = 6
+			ValLbl.Parent = Track
+
+			-- Hitbox
 			local Btn = Instance.new("TextButton")
 			Btn.Size = UDim2.new(1, 0, 1, 0)
 			Btn.BackgroundTransparency = 1
 			Btn.Text = ""
-			Btn.ZIndex = 6
+			Btn.ZIndex = 7
 			Btn.Parent = Track
 
 			local sliding = false
@@ -471,7 +464,7 @@ function AstralisLib:CreateWindow(config)
 			local callback = options.Callback or function() end
 
 			local Holder = Instance.new("Frame")
-			Holder.Size = UDim2.new(1, 0, 0, 48)
+			Holder.Size = UDim2.new(1, -20, 0, 48)
 			Holder.BackgroundTransparency = 1
 			Holder.ZIndex = 3
 			Holder.Parent = TabPage
@@ -551,7 +544,6 @@ function AstralisLib:CreateWindow(config)
 
 			local currentIndex = 1
 			local opts = type(list) == "function" and list() or list
-
 			for i, v in ipairs(opts) do
 				if tostring(v) == tostring(default) then currentIndex = i break end
 			end
