@@ -228,7 +228,7 @@ function AstralisLib:CreateWindow(config)
 	MinBtn.Position = UDim2.new(1, -80, 0, 0)
 	MinBtn.BackgroundTransparency = 1
 	MinBtn.Text = "–"
-	MinBtn.Font = Enum.Font.Arcade
+	MinBtn.Font = Enum.Font.Code
 	MinBtn.TextSize = 22
 	MinBtn.TextColor3 = Color3.fromRGB(150, 150, 150)
 	MinBtn.ZIndex = 3
