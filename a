@@ -62,6 +62,30 @@ function AstralisLib:CreateWindow(config)
 		Theme.SoundEnabled = config.SoundEnabled
 	end
 
+	--// USER CONFIGURABLE SIZE
+	local FULL_SIZE = config.Size or UDim2.new(0, 760, 0, 450)
+
+	local WINDOW_WIDTH = FULL_SIZE.X.Offset
+	local WINDOW_HEIGHT = FULL_SIZE.Y.Offset
+
+	-- Fallback values if scale-based UDim2 is used
+	if WINDOW_WIDTH <= 0 then
+		WINDOW_WIDTH = 760
+	end
+
+	if WINDOW_HEIGHT <= 0 then
+		WINDOW_HEIGHT = 450
+	end
+
+	local MINI_HEIGHT = 56
+
+	local TAB_WIDTH = config.TabWidth or 145
+	local TAB_HEIGHT = config.TabHeight or 32
+	local TAB_GAP = config.TabGap or 4
+	local CONTENT_GAP = config.ContentGap or 20
+
+	local HEADER_HEIGHT = config.HeaderHeight or 56
+
 	local function playSound()
 		if not Theme.SoundEnabled then
 			return
@@ -80,7 +104,7 @@ function AstralisLib:CreateWindow(config)
 		end)
 	end
 
-	--// ScreenGui
+	--// SCREEN GUI
 	local ScreenGui = Instance.new("ScreenGui")
 	ScreenGui.Name = "AstralisLibraryGui"
 	ScreenGui.ResetOnSpawn = false
@@ -95,11 +119,7 @@ function AstralisLib:CreateWindow(config)
 		ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 	end
 
-	--// Sizes
-	local FULL_SIZE = UDim2.new(0, 760, 0, 450)
-	local MINI_SIZE = UDim2.new(0, 760, 0, 56)
-
-	--// Main frame
+	--// MAIN FRAME
 	local Frame = Instance.new("CanvasGroup")
 	Frame.Size = FULL_SIZE
 	Frame.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -115,7 +135,7 @@ function AstralisLib:CreateWindow(config)
 	FrameStroke.Thickness = 1.5
 	FrameStroke.Parent = Frame
 
-	--// Background image
+	--// BACKGROUND IMAGE
 	if Theme.BackgroundImage ~= "" then
 		local Background = Instance.new("ImageLabel")
 		Background.Size = UDim2.new(1, 0, 1, 0)
@@ -128,7 +148,7 @@ function AstralisLib:CreateWindow(config)
 		Background.Parent = Frame
 	end
 
-	--// Overlay
+	--// OVERLAY
 	local DarkOverlay = Instance.new("Frame")
 	DarkOverlay.Size = UDim2.new(1, 0, 1, 0)
 	DarkOverlay.BackgroundColor3 = Theme.OverlayColor
@@ -137,9 +157,9 @@ function AstralisLib:CreateWindow(config)
 	DarkOverlay.ZIndex = 1
 	DarkOverlay.Parent = Frame
 
-	--// Header
+	--// HEADER
 	local HeaderBar = Instance.new("Frame")
-	HeaderBar.Size = UDim2.new(1, 0, 0, 56)
+	HeaderBar.Size = UDim2.new(1, 0, 0, HEADER_HEIGHT)
 	HeaderBar.BackgroundColor3 = Theme.HeaderColor
 	HeaderBar.BorderSizePixel = 0
 	HeaderBar.ZIndex = 2
@@ -153,7 +173,7 @@ function AstralisLib:CreateWindow(config)
 	HeaderDivider.ZIndex = 3
 	HeaderDivider.Parent = HeaderBar
 
-	--// Title
+	--// TITLE
 	local TitleLabel = Instance.new("TextLabel")
 	TitleLabel.Size = UDim2.new(1, -100, 1, 0)
 	TitleLabel.Position = UDim2.new(0, 18, 0, 0)
@@ -202,7 +222,7 @@ function AstralisLib:CreateWindow(config)
 		end
 	end)
 
-	--// Minimize
+	--// MINIMIZE
 	local MinBtn = Instance.new("TextButton")
 	MinBtn.Size = UDim2.new(0, 40, 1, 0)
 	MinBtn.Position = UDim2.new(1, -80, 0, 0)
@@ -214,7 +234,7 @@ function AstralisLib:CreateWindow(config)
 	MinBtn.ZIndex = 3
 	MinBtn.Parent = HeaderBar
 
-	--// Close
+	--// CLOSE
 	local CloseBtn = Instance.new("TextButton")
 	CloseBtn.Size = UDim2.new(0, 40, 1, 0)
 	CloseBtn.Position = UDim2.new(1, -40, 0, 0)
@@ -231,7 +251,7 @@ function AstralisLib:CreateWindow(config)
 		ScreenGui:Destroy()
 	end)
 
-	--// Dragging
+	--// DRAGGING
 	local dragging = false
 	local dragStart
 	local startPos
@@ -263,10 +283,10 @@ function AstralisLib:CreateWindow(config)
 		end
 	end)
 
-	--// Content
+	--// CONTENT
 	local ContentFolder = Instance.new("Frame")
-	ContentFolder.Size = UDim2.new(1, 0, 1, -56)
-	ContentFolder.Position = UDim2.new(0, 0, 0, 56)
+	ContentFolder.Size = UDim2.new(1, 0, 1, -HEADER_HEIGHT)
+	ContentFolder.Position = UDim2.new(0, 0, 0, HEADER_HEIGHT)
 	ContentFolder.BackgroundTransparency = 1
 	ContentFolder.Parent = Frame
 
@@ -278,14 +298,20 @@ function AstralisLib:CreateWindow(config)
 	local uiVisible = true
 	local uiMinimized = false
 
-	--// Minimize
+	--// MINIMIZE
 	MinBtn.MouseButton1Click:Connect(function()
 		playSound()
 
 		uiMinimized = not uiMinimized
 
 		if uiMinimized then
-			Frame.Size = MINI_SIZE
+			Frame.Size = UDim2.new(
+				FULL_SIZE.X.Scale,
+				FULL_SIZE.X.Offset,
+				0,
+				MINI_HEIGHT
+			)
+
 			ContentFolder.Visible = false
 			MinBtn.Text = "+"
 		else
@@ -295,7 +321,7 @@ function AstralisLib:CreateWindow(config)
 		end
 	end)
 
-	--// Keybind
+	--// KEYBIND
 	UserInputService.InputBegan:Connect(function(input)
 		if UserInputService:GetFocusedTextBox() then
 			return
@@ -310,11 +336,11 @@ function AstralisLib:CreateWindow(config)
 
 	local WindowObj = {}
 
-	--// TAB
+	--// CREATE TAB
 	function WindowObj:CreateTab(tabName)
 
 		local TabBtn = Instance.new("TextButton")
-		TabBtn.Size = UDim2.new(0, 145, 0, 32)
+		TabBtn.Size = UDim2.new(0, TAB_WIDTH, 0, TAB_HEIGHT)
 		TabBtn.Position = UDim2.new(0, 8, 0, TabYOffset)
 		TabBtn.BackgroundColor3 = Theme.TabBackground
 		TabBtn.BackgroundTransparency = 0.12
@@ -331,23 +357,24 @@ function AstralisLib:CreateWindow(config)
 		TabPadding.PaddingLeft = UDim.new(0, 13)
 		TabPadding.Parent = TabBtn
 
-		-- Selected indicator
-		local ActiveIndicator = Instance.new("Frame")
-		ActiveIndicator.Name = "ActiveIndicator"
-		ActiveIndicator.Size = UDim2.new(0, 2, 1, 0)
-		ActiveIndicator.Position = UDim2.new(0, 0, 0, 0)
-		ActiveIndicator.BackgroundColor3 = Theme.AccentColor
-		ActiveIndicator.BorderSizePixel = 0
-		ActiveIndicator.Visible = false
-		ActiveIndicator.ZIndex = 5
-		ActiveIndicator.Parent = TabBtn
+		TabYOffset = TabYOffset + TAB_HEIGHT + TAB_GAP
 
-		TabYOffset = TabYOffset + 36
-
-		--// Page
+		--// PAGE
 		local TabPage = Instance.new("ScrollingFrame")
-		TabPage.Size = UDim2.new(1, -165, 1, 0)
-		TabPage.Position = UDim2.new(0, 165, 0, 0)
+		TabPage.Size = UDim2.new(
+			1,
+			-(TAB_WIDTH + CONTENT_GAP + 10),
+			1,
+			0
+		)
+
+		TabPage.Position = UDim2.new(
+			0,
+			TAB_WIDTH + CONTENT_GAP,
+			0,
+			0
+		)
+
 		TabPage.BackgroundTransparency = 1
 		TabPage.BorderSizePixel = 0
 		TabPage.ScrollBarThickness = 4
@@ -381,6 +408,8 @@ function AstralisLib:CreateWindow(config)
 			for idx, page in ipairs(Pages) do
 				page.Visible = (idx == tabIndex)
 
+				-- Selected tab is only lighter.
+				-- No active indicator.
 				Tabs[idx].BackgroundColor3 =
 					(idx == tabIndex)
 					and Theme.TabActiveBackground
@@ -390,12 +419,6 @@ function AstralisLib:CreateWindow(config)
 					(idx == tabIndex)
 					and Theme.TabActiveTextColor
 					or Theme.TabTextColor
-
-				local indicator = Tabs[idx]:FindFirstChild("ActiveIndicator")
-
-				if indicator then
-					indicator.Visible = (idx == tabIndex)
-				end
 			end
 		end
 
@@ -409,6 +432,7 @@ function AstralisLib:CreateWindow(config)
 
 		--// TOGGLE
 		function TabObj:CreateToggle(options)
+			options = options or {}
 
 			local name = options.Name or "Toggle"
 			local desc = options.Description or ""
@@ -446,7 +470,7 @@ function AstralisLib:CreateWindow(config)
 			DescLbl.ZIndex = 4
 			DescLbl.Parent = Holder
 
-			-- Toggle track
+			--// FLAT TOGGLE TRACK
 			local Track = Instance.new("Frame")
 			Track.Size = UDim2.new(0, 44, 0, 20)
 			Track.Position = UDim2.new(
@@ -465,7 +489,6 @@ function AstralisLib:CreateWindow(config)
 			TrackStroke.Thickness = 1
 			TrackStroke.Parent = Track
 
-			-- Sliding square
 			local Square = Instance.new("Frame")
 			Square.Size = UDim2.new(0, 12, 0, 12)
 			Square.Position = default
@@ -482,7 +505,6 @@ function AstralisLib:CreateWindow(config)
 
 			addCorner(Square, 2)
 
-			-- Hitbox
 			local Hit = Instance.new("TextButton")
 			Hit.Size = UDim2.new(1, 0, 1, 0)
 			Hit.BackgroundTransparency = 1
@@ -538,6 +560,7 @@ function AstralisLib:CreateWindow(config)
 
 		--// SLIDER
 		function TabObj:CreateSlider(options)
+			options = options or {}
 
 			local name = options.Name or "Slider"
 			local min = options.Min or 0
@@ -652,6 +675,7 @@ function AstralisLib:CreateWindow(config)
 
 		--// BUTTON
 		function TabObj:CreateButton(options)
+			options = options or {}
 
 			local name = options.Name or "Button"
 			local desc = options.Description or ""
@@ -701,6 +725,7 @@ function AstralisLib:CreateWindow(config)
 
 		--// CYCLE / DROPDOWN
 		function TabObj:CreateCycle(options)
+			options = options or {}
 
 			local name = options.Name or "Cycle"
 			local list = options.Options or {"Default"}
@@ -783,6 +808,7 @@ function AstralisLib:CreateWindow(config)
 
 		--// TEXTBOX
 		function TabObj:CreateTextBox(options)
+			options = options or {}
 
 			local name = options.Name or "TextBox"
 			local default = options.Default or ""
