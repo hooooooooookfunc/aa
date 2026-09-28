@@ -206,7 +206,7 @@ function AstralisLib:CreateWindow(config)
 	CloseBtn.BackgroundTransparency = 1
 	CloseBtn.Text = "X"
 	CloseBtn.Font = Enum.Font.Arcade
-	CloseBtn.TextSize = 14
+	CloseBtn.TextSize = 22
 	CloseBtn.TextColor3 = Color3.fromRGB(150, 150, 150)
 	CloseBtn.ZIndex = 3
 	CloseBtn.Parent = HeaderBar
