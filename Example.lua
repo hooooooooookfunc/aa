@@ -1,6 +1,6 @@
 -- Example script version v1.0
 
-local Astralis = loadstring(game:HttpGet("https://raw.githubusercontent.com/rayan7727/aa/refs/heads/main/a"))() -- to load the ui
+local Astralis = loadstring(game:HttpGet("https://raw.githubusercontent.com/hooooooooookfunc/aa/refs/heads/main/a"))() -- to load the ui
 
 local Window = Astralis:CreateWindow({ -- creates window
     Name = "Example",
