@@ -263,10 +263,246 @@ function AstralisLib:CreateWindow(config)
 		}):Play()
 	end)
 
+	-- ============================================================
+	-- NOTIFICATIONS
+	-- ============================================================
+
+	local NotifyScreen = Instance.new("ScreenGui")
+	NotifyScreen.Name = "AstralisNotifyGui"
+	NotifyScreen.ResetOnSpawn = false
+	NotifyScreen.DisplayOrder = 2147483647
+	NotifyScreen.IgnoreGuiInset = true
+
+	pcall(function() NotifyScreen.Parent = CoreGui end)
+	if not NotifyScreen.Parent then NotifyScreen.Parent = LocalPlayer:WaitForChild("PlayerGui") end
+
+	local NotifyHolder = Instance.new("Frame")
+	NotifyHolder.Size = UDim2.new(0, 260, 0, 0)
+	NotifyHolder.Position = UDim2.new(1, -20, 1, -20)
+	NotifyHolder.AnchorPoint = Vector2.new(1, 1)
+	NotifyHolder.BackgroundTransparency = 1
+	NotifyHolder.Parent = NotifyScreen
+
+	local NotifyLayout = Instance.new("UIListLayout")
+	NotifyLayout.FillDirection = Enum.FillDirection.Vertical
+	NotifyLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+	NotifyLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+	NotifyLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	NotifyLayout.Padding = UDim.new(0, 8)
+	NotifyLayout.Parent = NotifyHolder
+
+	local activeNotifs = {}
+
+	local function createNotify(opts)
+		opts = opts or {}
+
+		local title = opts.Title or "Notification"
+		local text = opts.Text or ""
+		local duration = opts.Duration or 4
+		local buttons = opts.Buttons or {}
+		local accent = opts.AccentColor or Theme.AccentColor
+		local closeBtnEnabled = true
+		if opts.Closeable ~= nil then closeBtnEnabled = opts.Closeable end
+
+		local notifWidth = 260
+		local notifHeight = 62
+		if #buttons > 0 then
+			notifHeight = notifHeight + 34
+		end
+
+		local Notif = Instance.new("Frame")
+		Notif.Size = UDim2.new(0, notifWidth, 0, 0)
+		Notif.BackgroundColor3 = Theme.BackgroundColor
+		Notif.BorderSizePixel = 0
+		Notif.ZIndex = 5
+		Notif.Parent = NotifyHolder
+
+		addCorner(Notif, 8)
+
+		local NotifStroke = Instance.new("UIStroke")
+		NotifStroke.Color = Theme.StrokeColor
+		NotifStroke.Thickness = 1
+		NotifStroke.Parent = Notif
+
+		local AccentBar = Instance.new("Frame")
+		AccentBar.Size = UDim2.new(0, 3, 1, -14)
+		AccentBar.Position = UDim2.new(0, 0, 0, 7)
+		AccentBar.BackgroundColor3 = accent
+		AccentBar.BorderSizePixel = 0
+		AccentBar.ZIndex = 6
+		AccentBar.Parent = Notif
+
+		addCorner(AccentBar, 2)
+
+		local TitleLbl = Instance.new("TextLabel")
+		TitleLbl.Size = UDim2.new(1, -46, 0, 18)
+		TitleLbl.Position = UDim2.new(0, 14, 0, 8)
+		TitleLbl.BackgroundTransparency = 1
+		TitleLbl.Text = title
+		TitleLbl.Font = Theme.Font
+		TitleLbl.TextSize = 13
+		TitleLbl.TextColor3 = Theme.TextColor
+		TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
+		TitleLbl.ZIndex = 6
+		TitleLbl.Parent = Notif
+
+		local TextLbl = Instance.new("TextLabel")
+		TextLbl.Size = UDim2.new(1, -28, 0, 14)
+		TextLbl.Position = UDim2.new(0, 14, 0, 28)
+		TextLbl.BackgroundTransparency = 1
+		TextLbl.Text = text
+		TextLbl.Font = Theme.Font
+		TextLbl.TextSize = 11
+		TextLbl.TextColor3 = Theme.DescriptionColor
+		TextLbl.TextXAlignment = Enum.TextXAlignment.Left
+		TextLbl.ZIndex = 6
+		TextLbl.Parent = Notif
+
+		local CloseIcon = Instance.new("TextButton")
+		CloseIcon.Size = UDim2.new(0, 20, 0, 20)
+		CloseIcon.Position = UDim2.new(1, -26, 0, 6)
+		CloseIcon.BackgroundTransparency = 1
+		CloseIcon.Text = "X"
+		CloseIcon.Font = Enum.Font.Arcade
+		CloseIcon.TextSize = 10
+		CloseIcon.TextColor3 = Theme.DescriptionColor
+		CloseIcon.AutoButtonColor = false
+		CloseIcon.Modal = true
+		CloseIcon.Visible = closeBtnEnabled
+		CloseIcon.ZIndex = 7
+		CloseIcon.Parent = Notif
+
+		noSelect(CloseIcon)
+
+		CloseIcon.MouseEnter:Connect(function()
+			TweenService:Create(CloseIcon, TweenInfo.new(0.12), {
+				TextColor3 = Color3.fromRGB(240, 70, 70)
+			}):Play()
+		end)
+		CloseIcon.MouseLeave:Connect(function()
+			TweenService:Create(CloseIcon, TweenInfo.new(0.12), {
+				TextColor3 = Theme.DescriptionColor
+			}):Play()
+		end)
+
+		if #buttons > 0 then
+			local BtnRow = Instance.new("Frame")
+			BtnRow.Size = UDim2.new(1, -28, 0, 24)
+			BtnRow.Position = UDim2.new(0, 14, 0, 48)
+			BtnRow.BackgroundTransparency = 1
+			BtnRow.ZIndex = 6
+			BtnRow.Parent = Notif
+
+			local BtnLayout = Instance.new("UIListLayout")
+			BtnLayout.FillDirection = Enum.FillDirection.Horizontal
+			BtnLayout.SortOrder = Enum.SortOrder.LayoutOrder
+			BtnLayout.Padding = UDim.new(0, 6)
+			BtnLayout.Parent = BtnRow
+
+			for i, btnData in ipairs(buttons) do
+				local Btn = Instance.new("TextButton")
+				Btn.Size = UDim2.new(1 / #buttons, -6 * (#buttons - 1) / #buttons, 1, 0)
+				Btn.BackgroundColor3 = btnData.Color or Theme.ButtonBackground
+				Btn.BorderSizePixel = 0
+				Btn.Text = btnData.Text or ("Button " .. i)
+				Btn.Font = Theme.Font
+				Btn.TextSize = 11
+				Btn.TextColor3 = btnData.TextColor or Theme.ButtonTextColor
+				Btn.AutoButtonColor = false
+				Btn.Modal = true
+				Btn.LayoutOrder = i
+				Btn.ZIndex = 7
+				Btn.Parent = BtnRow
+
+				addCorner(Btn, 6)
+				noSelect(Btn)
+
+				local origBg = Btn.BackgroundColor3
+
+				Btn.MouseEnter:Connect(function()
+					TweenService:Create(Btn, TweenInfo.new(0.12), {
+						BackgroundColor3 = Color3.new(
+							math.min(origBg.R + 0.1, 1),
+							math.min(origBg.G + 0.1, 1),
+							math.min(origBg.B + 0.1, 1)
+						)
+					}):Play()
+				end)
+
+				Btn.MouseLeave:Connect(function()
+					TweenService:Create(Btn, TweenInfo.new(0.12), {
+						BackgroundColor3 = origBg
+					}):Play()
+				end)
+
+				Btn.MouseButton1Click:Connect(function()
+					playSound()
+					if btnData.Callback then
+						btnData.Callback()
+					end
+					if btnData.CloseOnClick ~= false then
+						if activeNotifs[Notif] then
+							activeNotifs[Notif]()
+						end
+					end
+				end)
+			end
+		end
+
+		local closeFn
+		local cancelled = false
+
+		closeFn = function()
+			if cancelled then return end
+			cancelled = true
+
+			local tween = TweenService:Create(Notif, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				Size = UDim2.new(0, notifWidth, 0, 0),
+				BackgroundTransparency = 1
+			})
+			tween:Play()
+
+			TweenService:Create(NotifStroke, TweenInfo.new(0.25), {
+				Transparency = 1
+			}):Play()
+
+			tween.Completed:Connect(function()
+				Notif:Destroy()
+				activeNotifs[Notif] = nil
+			end)
+		end
+
+		activeNotifs[Notif] = closeFn
+
+		CloseIcon.MouseButton1Click:Connect(function()
+			playSound()
+			closeFn()
+		end)
+
+		TweenService:Create(Notif, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			Size = UDim2.new(0, notifWidth, 0, notifHeight)
+		}):Play()
+
+		if duration > 0 then
+			task.delay(duration, function()
+				closeFn()
+			end)
+		end
+
+		return {
+			Close = closeFn,
+			Frame = Notif
+		}
+	end
+
+	-- ============================================================
+	-- CONFIRM DIALOG
+	-- ============================================================
+
 	local ConfirmScreen = Instance.new("ScreenGui")
 	ConfirmScreen.Name = "AstralisConfirmGui"
 	ConfirmScreen.ResetOnSpawn = false
-	ConfirmScreen.DisplayOrder = 2147483647
+	ConfirmScreen.DisplayOrder = 2147483645
 	ConfirmScreen.IgnoreGuiInset = true
 
 	pcall(function() ConfirmScreen.Parent = CoreGui end)
@@ -412,6 +648,7 @@ function AstralisLib:CreateWindow(config)
 		playSound()
 		Blur:Destroy()
 		ConfirmScreen:Destroy()
+		NotifyScreen:Destroy()
 		task.defer(function()
 			ScreenGui:Destroy()
 		end)
@@ -1094,6 +1331,10 @@ function AstralisLib:CreateWindow(config)
 		end
 
 		return TabObj
+	end
+
+	WindowObj.Notify = function(self, opts)
+		return createNotify(opts)
 	end
 
 	return WindowObj
