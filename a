@@ -81,6 +81,7 @@ function AstralisLib:CreateWindow(config)
 	local TAB_HEIGHT = 32
 	local TAB_GAP = 8
 	local TAB_TOP = 16
+	local CORNER = 8
 
 	local function playSound()
 		if not Theme.SoundEnabled then return end
@@ -103,7 +104,8 @@ function AstralisLib:CreateWindow(config)
 	pcall(function() ScreenGui.Parent = CoreGui end)
 	if not ScreenGui.Parent then ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
 
-	local Frame = Instance.new("CanvasGroup")
+	-- Outer frame: handles clipping + corners
+	local Frame = Instance.new("Frame")
 	Frame.Size = FULL_SIZE
 	Frame.Position = UDim2.new(0.5, 0, 0.5, 0)
 	Frame.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -112,7 +114,16 @@ function AstralisLib:CreateWindow(config)
 	Frame.ClipsDescendants = true
 	Frame.Parent = ScreenGui
 
-	addCorner(Frame, 8)
+	addCorner(Frame, CORNER)
+
+	-- Inner container: everything visible lives inside this
+	local Inner = Instance.new("Frame")
+	Inner.Size = UDim2.new(1, 0, 1, 0)
+	Inner.BackgroundColor3 = Theme.BackgroundColor
+	Inner.BackgroundTransparency = 1
+	Inner.BorderSizePixel = 0
+	Inner.ZIndex = 1
+	Inner.Parent = Frame
 
 	if Theme.BackgroundImage ~= "" then
 		local Background = Instance.new("ImageLabel")
@@ -123,7 +134,7 @@ function AstralisLib:CreateWindow(config)
 		Background.ImageColor3 = Theme.ImageColor
 		Background.ScaleType = Enum.ScaleType.Crop
 		Background.ZIndex = 1
-		Background.Parent = Frame
+		Background.Parent = Inner
 	end
 
 	if Theme.OverlayTransparency < 1 then
@@ -133,7 +144,7 @@ function AstralisLib:CreateWindow(config)
 		DarkOverlay.BackgroundTransparency = Theme.OverlayTransparency
 		DarkOverlay.BorderSizePixel = 0
 		DarkOverlay.ZIndex = 1
-		DarkOverlay.Parent = Frame
+		DarkOverlay.Parent = Inner
 	end
 
 	local HeaderBar = Instance.new("Frame")
@@ -141,7 +152,7 @@ function AstralisLib:CreateWindow(config)
 	HeaderBar.BackgroundColor3 = Theme.HeaderColor
 	HeaderBar.BorderSizePixel = 0
 	HeaderBar.ZIndex = 2
-	HeaderBar.Parent = Frame
+	HeaderBar.Parent = Inner
 
 	local HeaderDivider = Instance.new("Frame")
 	HeaderDivider.Size = UDim2.new(1, 0, 0, 1)
@@ -244,7 +255,8 @@ function AstralisLib:CreateWindow(config)
 	Body.Size = UDim2.new(1, 0, 1, -HEADER_HEIGHT)
 	Body.Position = UDim2.new(0, 0, 0, HEADER_HEIGHT)
 	Body.BackgroundTransparency = 1
-	Body.Parent = Frame
+	Body.ZIndex = 2
+	Body.Parent = Inner
 
 	local Sidebar = Instance.new("Frame")
 	Sidebar.Size = UDim2.new(0, SIDEBAR_WIDTH, 1, 0)
