@@ -171,7 +171,7 @@ function AstralisLib:CreateWindow(config)
 
 	local SearchBar = Instance.new("Frame")
 	SearchBar.Size = UDim2.new(0, 200, 0, 26)
-	SearchBar.Position = UDim2.new(1, -260, 0.5, -13)
+	SearchBar.Position = UDim2.new(0.5, -100, 0.5, -13)
 	SearchBar.BackgroundColor3 = Color3.fromRGB(32, 32, 36)
 	SearchBar.BorderSizePixel = 0
 	SearchBar.ZIndex = 3
@@ -184,14 +184,12 @@ function AstralisLib:CreateWindow(config)
 	SearchStroke.Thickness = 1
 	SearchStroke.Parent = SearchBar
 
-	local SearchIcon = Instance.new("TextLabel")
-	SearchIcon.Size = UDim2.new(0, 24, 1, 0)
-	SearchIcon.Position = UDim2.new(0, 6, 0, 0)
+	local SearchIcon = Instance.new("ImageLabel")
+	SearchIcon.Size = UDim2.new(0, 14, 0, 14)
+	SearchIcon.Position = UDim2.new(0, 8, 0.5, -7)
 	SearchIcon.BackgroundTransparency = 1
-	SearchIcon.Text = "search"
-	SearchIcon.Font = Enum.Font.MaterialIcons
-	SearchIcon.TextSize = 14
-	SearchIcon.TextColor3 = Theme.DescriptionColor
+	SearchIcon.Image = "rbxassetid://92042218911321"
+	SearchIcon.ImageColor3 = Theme.DescriptionColor
 	SearchIcon.ZIndex = 4
 	SearchIcon.Parent = SearchBar
 
