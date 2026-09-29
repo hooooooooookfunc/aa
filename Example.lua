@@ -24,23 +24,6 @@ local function noSelect(obj)
 	obj.SelectionImageObject = blank
 end
 
-local function getGuiParent()
-	local gui = Instance.new("ScreenGui")
-	gui.Name = "AstralisHold"
-	gui.ResetOnSpawn = false
-	gui.DisplayOrder = 2147483647
-	gui.IgnoreGuiInset = true
-	gui.Enabled = false
-
-	pcall(function() gui.Parent = CoreGui end)
-	if not gui.Parent then
-		gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-	end
-
-	gui:Destroy()
-	return gui
-end
-
 function AstralisLib:CreateWindow(config)
 	config = config or {}
 
@@ -120,16 +103,6 @@ function AstralisLib:CreateWindow(config)
 
 	pcall(function() ScreenGui.Parent = CoreGui end)
 	if not ScreenGui.Parent then ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
-
-	local ConfirmScreen = Instance.new("ScreenGui")
-	ConfirmScreen.Name = "AstralisConfirmGui"
-	ConfirmScreen.ResetOnSpawn = false
-	ConfirmScreen.DisplayOrder = 2147483647
-	ConfirmScreen.IgnoreGuiInset = true
-	ConfirmScreen.Enabled = false
-
-	pcall(function() ConfirmScreen.Parent = CoreGui end)
-	if not ConfirmScreen.Parent then ConfirmScreen.Parent = LocalPlayer:WaitForChild("PlayerGui") end
 
 	local Frame = Instance.new("CanvasGroup")
 	Frame.Size = FULL_SIZE
@@ -239,13 +212,21 @@ function AstralisLib:CreateWindow(config)
 		TweenService:Create(MinBtn, TweenInfo.new(0.12), {TextColor3 = Color3.fromRGB(150, 150, 150)}):Play()
 	end)
 
-	-- ============ CONFIRM DIALOG (pre-built, hidden) ============
+	local ConfirmScreen = Instance.new("ScreenGui")
+	ConfirmScreen.Name = "AstralisConfirmGui"
+	ConfirmScreen.ResetOnSpawn = false
+	ConfirmScreen.DisplayOrder = 2147483647
+	ConfirmScreen.IgnoreGuiInset = true
+
+	pcall(function() ConfirmScreen.Parent = CoreGui end)
+	if not ConfirmScreen.Parent then ConfirmScreen.Parent = LocalPlayer:WaitForChild("PlayerGui") end
 
 	local Dim = Instance.new("Frame")
 	Dim.Size = UDim2.new(1, 0, 1, 0)
 	Dim.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 	Dim.BackgroundTransparency = 1
 	Dim.BorderSizePixel = 0
+	Dim.Visible = false
 	Dim.ZIndex = 1
 	Dim.Parent = ConfirmScreen
 
@@ -255,6 +236,7 @@ function AstralisLib:CreateWindow(config)
 	ConfirmGui.AnchorPoint = Vector2.new(0.5, 0.5)
 	ConfirmGui.BackgroundColor3 = Theme.BackgroundColor
 	ConfirmGui.BorderSizePixel = 0
+	ConfirmGui.Visible = false
 	ConfirmGui.ZIndex = 2
 	ConfirmGui.Parent = ConfirmScreen
 
@@ -341,7 +323,8 @@ function AstralisLib:CreateWindow(config)
 	end)
 
 	local function openConfirm()
-		ConfirmScreen.Enabled = true
+		Dim.Visible = true
+		ConfirmGui.Visible = true
 		Dim.BackgroundTransparency = 1
 
 		TweenService:Create(Dim, TweenInfo.new(0.25), {
@@ -363,8 +346,9 @@ function AstralisLib:CreateWindow(config)
 			Blur.Enabled = false
 		end)
 
-		task.delay(0.25, function()
-			ConfirmScreen.Enabled = false
+		t.Completed:Connect(function()
+			Dim.Visible = false
+			ConfirmGui.Visible = false
 		end)
 	end
 
@@ -384,8 +368,6 @@ function AstralisLib:CreateWindow(config)
 		playSound()
 		openConfirm()
 	end)
-
-	-- ============================================================
 
 	local dragging = false
 	local dragStart
