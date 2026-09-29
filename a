@@ -296,7 +296,6 @@ function AstralisLib:CreateWindow(config)
 		local text = opts.Text or ""
 		local duration = opts.Duration or 4
 		local buttons = opts.Buttons or {}
-		local accent = opts.AccentColor or Theme.AccentColor
 		local closeBtnEnabled = true
 		if opts.Closeable ~= nil then closeBtnEnabled = opts.Closeable end
 
@@ -314,21 +313,6 @@ function AstralisLib:CreateWindow(config)
 		Notif.Parent = NotifyHolder
 
 		addCorner(Notif, 8)
-
-		local NotifStroke = Instance.new("UIStroke")
-		NotifStroke.Color = Theme.StrokeColor
-		NotifStroke.Thickness = 1
-		NotifStroke.Parent = Notif
-
-		local AccentBar = Instance.new("Frame")
-		AccentBar.Size = UDim2.new(0, 3, 1, -16)
-		AccentBar.Position = UDim2.new(0, 0, 0, 8)
-		AccentBar.BackgroundColor3 = accent
-		AccentBar.BorderSizePixel = 0
-		AccentBar.ZIndex = 6
-		AccentBar.Parent = Notif
-
-		addCorner(AccentBar, 2)
 
 		local TitleLbl = Instance.new("TextLabel")
 		TitleLbl.Size = UDim2.new(1, -46, 0, 20)
@@ -458,10 +442,6 @@ function AstralisLib:CreateWindow(config)
 			})
 			tween:Play()
 
-			TweenService:Create(NotifStroke, TweenInfo.new(0.25), {
-				Transparency = 1
-			}):Play()
-
 			tween.Completed:Connect(function()
 				Notif:Destroy()
 				activeNotifs[Notif] = nil
@@ -520,11 +500,6 @@ function AstralisLib:CreateWindow(config)
 	ConfirmGui.Parent = ConfirmScreen
 
 	addCorner(ConfirmGui, 10)
-
-	local ConfirmStroke = Instance.new("UIStroke")
-	ConfirmStroke.Color = Theme.StrokeColor
-	ConfirmStroke.Thickness = 1
-	ConfirmStroke.Parent = ConfirmGui
 
 	local ConfirmTitle = Instance.new("TextLabel")
 	ConfirmTitle.Size = UDim2.new(1, -30, 0, 50)
@@ -903,11 +878,6 @@ function AstralisLib:CreateWindow(config)
 
 			addCorner(Track, 4)
 
-			local TrackStroke = Instance.new("UIStroke")
-			TrackStroke.Color = Theme.StrokeColor
-			TrackStroke.Thickness = 1
-			TrackStroke.Parent = Track
-
 			local Square = Instance.new("Frame")
 			Square.Size = UDim2.new(0, 12, 0, 12)
 			Square.Position = default and UDim2.new(1, -16, 0.5, -6) or UDim2.new(0, 4, 0.5, -6)
@@ -938,18 +908,6 @@ function AstralisLib:CreateWindow(config)
 
 			task.defer(updateTogglePosition)
 			TitleLbl:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateTogglePosition)
-
-			Hit.MouseEnter:Connect(function()
-				TweenService:Create(TrackStroke, TweenInfo.new(0.12), {
-					Color = Color3.fromRGB(70, 70, 75)
-				}):Play()
-			end)
-
-			Hit.MouseLeave:Connect(function()
-				TweenService:Create(TrackStroke, TweenInfo.new(0.12), {
-					Color = Theme.StrokeColor
-				}):Play()
-			end)
 
 			Hit.MouseButton1Click:Connect(function()
 				playSound()
@@ -1000,11 +958,6 @@ function AstralisLib:CreateWindow(config)
 
 			addCorner(Track, 4)
 
-			local TrackStroke = Instance.new("UIStroke")
-			TrackStroke.Color = Theme.StrokeColor
-			TrackStroke.Thickness = 1
-			TrackStroke.Parent = Track
-
 			local pct = math.clamp((default - min) / (max - min), 0, 1)
 
 			local Fill = Instance.new("Frame")
@@ -1047,40 +1000,16 @@ function AstralisLib:CreateWindow(config)
 				callback(val)
 			end
 
-			Btn.MouseEnter:Connect(function()
-				if not sliding then
-					TweenService:Create(TrackStroke, TweenInfo.new(0.12), {
-						Color = Color3.fromRGB(70, 70, 75)
-					}):Play()
-				end
-			end)
-
-			Btn.MouseLeave:Connect(function()
-				if not sliding then
-					TweenService:Create(TrackStroke, TweenInfo.new(0.12), {
-						Color = Theme.StrokeColor
-					}):Play()
-				end
-			end)
-
 			Btn.InputBegan:Connect(function(input)
 				if input.UserInputType == Enum.UserInputType.MouseButton1 then
 					sliding = true
 					update(input)
-					TweenService:Create(TrackStroke, TweenInfo.new(0.12), {
-						Color = Theme.AccentColor
-					}):Play()
 				end
 			end)
 
 			UserInputService.InputEnded:Connect(function(input)
 				if input.UserInputType == Enum.UserInputType.MouseButton1 then
-					if sliding then
-						sliding = false
-						TweenService:Create(TrackStroke, TweenInfo.new(0.15), {
-							Color = Theme.StrokeColor
-						}):Play()
-					end
+					sliding = false
 				end
 			end)
 
@@ -1119,11 +1048,6 @@ function AstralisLib:CreateWindow(config)
 			addCorner(Btn, 4)
 			noSelect(Btn)
 
-			local Stroke = Instance.new("UIStroke")
-			Stroke.Color = Theme.StrokeColor
-			Stroke.Thickness = 1
-			Stroke.Parent = Btn
-
 			local Desc = Instance.new("TextLabel")
 			Desc.Size = UDim2.new(1, 0, 0, 14)
 			Desc.Position = UDim2.new(0, 0, 0, 30)
@@ -1140,17 +1064,11 @@ function AstralisLib:CreateWindow(config)
 				TweenService:Create(Btn, TweenInfo.new(0.12), {
 					BackgroundColor3 = Color3.fromRGB(45, 45, 50)
 				}):Play()
-				TweenService:Create(Stroke, TweenInfo.new(0.12), {
-					Color = Color3.fromRGB(70, 70, 75)
-				}):Play()
 			end)
 
 			Btn.MouseLeave:Connect(function()
 				TweenService:Create(Btn, TweenInfo.new(0.12), {
 					BackgroundColor3 = Theme.ButtonBackground
-				}):Play()
-				TweenService:Create(Stroke, TweenInfo.new(0.12), {
-					Color = Theme.StrokeColor
 				}):Play()
 			end)
 
@@ -1201,11 +1119,6 @@ function AstralisLib:CreateWindow(config)
 			addCorner(Btn, 4)
 			noSelect(Btn)
 
-			local Stroke = Instance.new("UIStroke")
-			Stroke.Color = Theme.StrokeColor
-			Stroke.Thickness = 1
-			Stroke.Parent = Btn
-
 			local currentIndex = 1
 			local opts = type(list) == "function" and list() or list
 
@@ -1222,17 +1135,11 @@ function AstralisLib:CreateWindow(config)
 				TweenService:Create(Btn, TweenInfo.new(0.12), {
 					BackgroundColor3 = Color3.fromRGB(45, 45, 50)
 				}):Play()
-				TweenService:Create(Stroke, TweenInfo.new(0.12), {
-					Color = Color3.fromRGB(70, 70, 75)
-				}):Play()
 			end)
 
 			Btn.MouseLeave:Connect(function()
 				TweenService:Create(Btn, TweenInfo.new(0.12), {
 					BackgroundColor3 = Theme.ButtonBackground
-				}):Play()
-				TweenService:Create(Stroke, TweenInfo.new(0.12), {
-					Color = Theme.StrokeColor
 				}):Play()
 			end)
 
@@ -1286,37 +1193,13 @@ function AstralisLib:CreateWindow(config)
 
 			addCorner(Box, 4)
 
-			local Stroke = Instance.new("UIStroke")
-			Stroke.Color = Theme.StrokeColor
-			Stroke.Thickness = 1
-			Stroke.Parent = Box
-
 			Box.MouseEnter:Connect(function()
-				if not Box:IsFocused() then
-					TweenService:Create(Stroke, TweenInfo.new(0.12), {
-						Color = Color3.fromRGB(70, 70, 75)
-					}):Play()
-				end
 			end)
 
 			Box.MouseLeave:Connect(function()
-				if not Box:IsFocused() then
-					TweenService:Create(Stroke, TweenInfo.new(0.12), {
-						Color = Theme.StrokeColor
-					}):Play()
-				end
-			end)
-
-			Box.Focused:Connect(function()
-				TweenService:Create(Stroke, TweenInfo.new(0.12), {
-					Color = Theme.AccentColor
-				}):Play()
 			end)
 
 			Box.FocusLost:Connect(function()
-				TweenService:Create(Stroke, TweenInfo.new(0.15), {
-					Color = Theme.StrokeColor
-				}):Play()
 				playSound()
 				callback(Box.Text)
 			end)
