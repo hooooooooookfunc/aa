@@ -317,13 +317,18 @@ function AstralisLib:CreateWindow(config)
 		TabBtn.TextColor3 = Theme.TabTextColor
 		TabBtn.Font = Theme.Font
 		TabBtn.TextSize = 13
-		TabBtn.TextWrapped = true
+		TabBtn.TextXAlignment = Enum.TextXAlignment.Left
+		TabBtn.TextWrapped = false
 		TabBtn.AutoButtonColor = false
 		TabBtn.Modal = true
 		TabBtn.ZIndex = 4
 		TabBtn.Parent = Sidebar
 
 		noSelect(TabBtn)
+
+		local tabPad = Instance.new("UIPadding")
+		tabPad.PaddingLeft = UDim.new(0, 12)
+		tabPad.Parent = TabBtn
 
 		local Page = Instance.new("ScrollingFrame")
 		Page.Size = UDim2.new(1, 0, 1, 0)
