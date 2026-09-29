@@ -188,7 +188,7 @@ function AstralisLib:CreateWindow(config)
 	SearchIcon.Size = UDim2.new(0, 14, 0, 14)
 	SearchIcon.Position = UDim2.new(0, 8, 0.5, -7)
 	SearchIcon.BackgroundTransparency = 1
-	SearchIcon.Image = "rbxassetid://92042218911321"
+	SearchIcon.Image = "rbxassetid://83307455036838"
 	SearchIcon.ImageColor3 = Theme.DescriptionColor
 	SearchIcon.ZIndex = 4
 	SearchIcon.Parent = SearchBar
