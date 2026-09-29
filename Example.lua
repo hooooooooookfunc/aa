@@ -24,6 +24,23 @@ local function noSelect(obj)
 	obj.SelectionImageObject = blank
 end
 
+local function getGuiParent()
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "AstralisHold"
+	gui.ResetOnSpawn = false
+	gui.DisplayOrder = 2147483647
+	gui.IgnoreGuiInset = true
+	gui.Enabled = false
+
+	pcall(function() gui.Parent = CoreGui end)
+	if not gui.Parent then
+		gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+	end
+
+	gui:Destroy()
+	return gui
+end
+
 function AstralisLib:CreateWindow(config)
 	config = config or {}
 
@@ -98,11 +115,21 @@ function AstralisLib:CreateWindow(config)
 	local ScreenGui = Instance.new("ScreenGui")
 	ScreenGui.Name = "AstralisLibraryGui"
 	ScreenGui.ResetOnSpawn = false
-	ScreenGui.DisplayOrder = 2147483647
+	ScreenGui.DisplayOrder = 2147483646
 	ScreenGui.IgnoreGuiInset = true
 
 	pcall(function() ScreenGui.Parent = CoreGui end)
 	if not ScreenGui.Parent then ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
+
+	local ConfirmScreen = Instance.new("ScreenGui")
+	ConfirmScreen.Name = "AstralisConfirmGui"
+	ConfirmScreen.ResetOnSpawn = false
+	ConfirmScreen.DisplayOrder = 2147483647
+	ConfirmScreen.IgnoreGuiInset = true
+	ConfirmScreen.Enabled = false
+
+	pcall(function() ConfirmScreen.Parent = CoreGui end)
+	if not ConfirmScreen.Parent then ConfirmScreen.Parent = LocalPlayer:WaitForChild("PlayerGui") end
 
 	local Frame = Instance.new("CanvasGroup")
 	Frame.Size = FULL_SIZE
@@ -212,144 +239,153 @@ function AstralisLib:CreateWindow(config)
 		TweenService:Create(MinBtn, TweenInfo.new(0.12), {TextColor3 = Color3.fromRGB(150, 150, 150)}):Play()
 	end)
 
+	-- ============ CONFIRM DIALOG (pre-built, hidden) ============
+
+	local Dim = Instance.new("Frame")
+	Dim.Size = UDim2.new(1, 0, 1, 0)
+	Dim.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	Dim.BackgroundTransparency = 1
+	Dim.BorderSizePixel = 0
+	Dim.ZIndex = 1
+	Dim.Parent = ConfirmScreen
+
+	local ConfirmGui = Instance.new("Frame")
+	ConfirmGui.Size = UDim2.new(0, 320, 0, 140)
+	ConfirmGui.Position = UDim2.new(0.5, 0, 0.5, 0)
+	ConfirmGui.AnchorPoint = Vector2.new(0.5, 0.5)
+	ConfirmGui.BackgroundColor3 = Theme.BackgroundColor
+	ConfirmGui.BorderSizePixel = 0
+	ConfirmGui.ZIndex = 2
+	ConfirmGui.Parent = ConfirmScreen
+
+	addCorner(ConfirmGui, 10)
+
+	local ConfirmStroke = Instance.new("UIStroke")
+	ConfirmStroke.Color = Theme.StrokeColor
+	ConfirmStroke.Thickness = 1
+	ConfirmStroke.Parent = ConfirmGui
+
+	local ConfirmTitle = Instance.new("TextLabel")
+	ConfirmTitle.Size = UDim2.new(1, -30, 0, 50)
+	ConfirmTitle.Position = UDim2.new(0, 15, 0, 10)
+	ConfirmTitle.BackgroundTransparency = 1
+	ConfirmTitle.Text = "Are you sure you want to close this UI?"
+	ConfirmTitle.Font = Theme.Font
+	ConfirmTitle.TextSize = 14
+	ConfirmTitle.TextColor3 = Theme.TextColor
+	ConfirmTitle.TextWrapped = true
+	ConfirmTitle.TextXAlignment = Enum.TextXAlignment.Left
+	ConfirmTitle.TextYAlignment = Enum.TextYAlignment.Center
+	ConfirmTitle.ZIndex = 3
+	ConfirmTitle.Parent = ConfirmGui
+
+	local YesBtn = Instance.new("TextButton")
+	YesBtn.Size = UDim2.new(0.5, -22, 0, 36)
+	YesBtn.Position = UDim2.new(0, 15, 1, -51)
+	YesBtn.BackgroundColor3 = Theme.AccentColor
+	YesBtn.BorderSizePixel = 0
+	YesBtn.Text = "Yes"
+	YesBtn.Font = Theme.Font
+	YesBtn.TextSize = 14
+	YesBtn.TextColor3 = Color3.fromRGB(30, 30, 32)
+	YesBtn.AutoButtonColor = false
+	YesBtn.Modal = true
+	YesBtn.ZIndex = 3
+	YesBtn.Parent = ConfirmGui
+
+	addCorner(YesBtn, 8)
+	noSelect(YesBtn)
+
+	local NoBtn = Instance.new("TextButton")
+	NoBtn.Size = UDim2.new(0.5, -22, 0, 36)
+	NoBtn.Position = UDim2.new(0.5, 7, 1, -51)
+	NoBtn.BackgroundColor3 = Theme.ButtonBackground
+	NoBtn.BorderSizePixel = 0
+	NoBtn.Text = "No"
+	NoBtn.Font = Theme.Font
+	NoBtn.TextSize = 14
+	NoBtn.TextColor3 = Theme.ButtonTextColor
+	NoBtn.AutoButtonColor = false
+	NoBtn.Modal = true
+	NoBtn.ZIndex = 3
+	NoBtn.Parent = ConfirmGui
+
+	addCorner(NoBtn, 8)
+	noSelect(NoBtn)
+
+	local Blur = Instance.new("BlurEffect")
+	Blur.Size = 0
+	Blur.Enabled = false
+	Blur.Parent = Lighting
+
+	YesBtn.MouseEnter:Connect(function()
+		TweenService:Create(YesBtn, TweenInfo.new(0.12), {
+			BackgroundColor3 = Color3.fromRGB(220, 220, 225)
+		}):Play()
+	end)
+	YesBtn.MouseLeave:Connect(function()
+		TweenService:Create(YesBtn, TweenInfo.new(0.12), {
+			BackgroundColor3 = Theme.AccentColor
+		}):Play()
+	end)
+
+	NoBtn.MouseEnter:Connect(function()
+		TweenService:Create(NoBtn, TweenInfo.new(0.12), {
+			BackgroundColor3 = Color3.fromRGB(65, 65, 70)
+		}):Play()
+	end)
+	NoBtn.MouseLeave:Connect(function()
+		TweenService:Create(NoBtn, TweenInfo.new(0.12), {
+			BackgroundColor3 = Theme.ButtonBackground
+		}):Play()
+	end)
+
+	local function openConfirm()
+		ConfirmScreen.Enabled = true
+		Dim.BackgroundTransparency = 1
+
+		TweenService:Create(Dim, TweenInfo.new(0.25), {
+			BackgroundTransparency = 0.5
+		}):Play()
+
+		Blur.Enabled = true
+		Blur.Size = 0
+		TweenService:Create(Blur, TweenInfo.new(0.25), { Size = 14 }):Play()
+	end
+
+	local function closeConfirm()
+		local t = TweenService:Create(Dim, TweenInfo.new(0.2), { BackgroundTransparency = 1 })
+		t:Play()
+
+		local b = TweenService:Create(Blur, TweenInfo.new(0.25), { Size = 0 })
+		b:Play()
+		b.Completed:Connect(function()
+			Blur.Enabled = false
+		end)
+
+		task.delay(0.25, function()
+			ConfirmScreen.Enabled = false
+		end)
+	end
+
+	NoBtn.MouseButton1Click:Connect(function()
+		playSound()
+		closeConfirm()
+	end)
+
+	YesBtn.MouseButton1Click:Connect(function()
+		playSound()
+		Blur:Destroy()
+		ConfirmScreen:Destroy()
+		ScreenGui:Destroy()
+	end)
+
 	CloseBtn.MouseButton1Click:Connect(function()
 		playSound()
-
-		local oldConfirm = CoreGui:FindFirstChild("AstralisConfirmGui") or LocalPlayer.PlayerGui:FindFirstChild("AstralisConfirmGui")
-		if oldConfirm then oldConfirm:Destroy() end
-
-		local ConfirmScreen = Instance.new("ScreenGui")
-		ConfirmScreen.Name = "AstralisConfirmGui"
-		ConfirmScreen.ResetOnSpawn = false
-		ConfirmScreen.DisplayOrder = 2147483647
-		ConfirmScreen.IgnoreGuiInset = true
-
-		pcall(function() ConfirmScreen.Parent = CoreGui end)
-		if not ConfirmScreen.Parent then ConfirmScreen.Parent = LocalPlayer:WaitForChild("PlayerGui") end
-
-		local Dim = Instance.new("Frame")
-		Dim.Size = UDim2.new(1, 0, 1, 0)
-		Dim.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-		Dim.BackgroundTransparency = 1
-		Dim.BorderSizePixel = 0
-		Dim.ZIndex = 1
-		Dim.Parent = ConfirmScreen
-
-		TweenService:Create(Dim, TweenInfo.new(0.25), { BackgroundTransparency = 0.5 }):Play()
-
-		local ConfirmGui = Instance.new("Frame")
-		ConfirmGui.Size = UDim2.new(0, 320, 0, 140)
-		ConfirmGui.Position = UDim2.new(0.5, 0, 0.5, 0)
-		ConfirmGui.AnchorPoint = Vector2.new(0.5, 0.5)
-		ConfirmGui.BackgroundColor3 = Theme.BackgroundColor
-		ConfirmGui.BorderSizePixel = 0
-		ConfirmGui.ZIndex = 2
-		ConfirmGui.Parent = ConfirmScreen
-
-		addCorner(ConfirmGui, 10)
-
-		local ConfirmStroke = Instance.new("UIStroke")
-		ConfirmStroke.Color = Theme.StrokeColor
-		ConfirmStroke.Thickness = 1
-		ConfirmStroke.Parent = ConfirmGui
-
-		local Title = Instance.new("TextLabel")
-		Title.Size = UDim2.new(1, -30, 0, 50)
-		Title.Position = UDim2.new(0, 15, 0, 10)
-		Title.BackgroundTransparency = 1
-		Title.Text = "Are you sure you want to close this UI?"
-		Title.Font = Theme.Font
-		Title.TextSize = 14
-		Title.TextColor3 = Theme.TextColor
-		Title.TextWrapped = true
-		Title.TextXAlignment = Enum.TextXAlignment.Left
-		Title.TextYAlignment = Enum.TextYAlignment.Center
-		Title.ZIndex = 3
-		Title.Parent = ConfirmGui
-
-		local YesBtn = Instance.new("TextButton")
-		YesBtn.Size = UDim2.new(0.5, -22, 0, 36)
-		YesBtn.Position = UDim2.new(0, 15, 1, -51)
-		YesBtn.BackgroundColor3 = Theme.AccentColor
-		YesBtn.BorderSizePixel = 0
-		YesBtn.Text = "Yes"
-		YesBtn.Font = Theme.Font
-		YesBtn.TextSize = 14
-		YesBtn.TextColor3 = Color3.fromRGB(30, 30, 32)
-		YesBtn.AutoButtonColor = false
-		YesBtn.ZIndex = 3
-		YesBtn.Parent = ConfirmGui
-
-		addCorner(YesBtn, 8)
-		noSelect(YesBtn)
-
-		local NoBtn = Instance.new("TextButton")
-		NoBtn.Size = UDim2.new(0.5, -22, 0, 36)
-		NoBtn.Position = UDim2.new(0.5, 7, 1, -51)
-		NoBtn.BackgroundColor3 = Theme.ButtonBackground
-		NoBtn.BorderSizePixel = 0
-		NoBtn.Text = "No"
-		NoBtn.Font = Theme.Font
-		NoBtn.TextSize = 14
-		NoBtn.TextColor3 = Theme.ButtonTextColor
-		NoBtn.AutoButtonColor = false
-		NoBtn.ZIndex = 3
-		NoBtn.Parent = ConfirmGui
-
-		addCorner(NoBtn, 8)
-		noSelect(NoBtn)
-
-		local Blur = Instance.new("BlurEffect")
-		Blur.Size = 0
-		Blur.Parent = Lighting
-		TweenService:Create(Blur, TweenInfo.new(0.25), { Size = 14 }):Play()
-
-		YesBtn.MouseEnter:Connect(function()
-			TweenService:Create(YesBtn, TweenInfo.new(0.12), {
-				BackgroundColor3 = Color3.fromRGB(220, 220, 225)
-			}):Play()
-		end)
-		YesBtn.MouseLeave:Connect(function()
-			TweenService:Create(YesBtn, TweenInfo.new(0.12), {
-				BackgroundColor3 = Theme.AccentColor
-			}):Play()
-		end)
-
-		NoBtn.MouseEnter:Connect(function()
-			TweenService:Create(NoBtn, TweenInfo.new(0.12), {
-				BackgroundColor3 = Color3.fromRGB(65, 65, 70)
-			}):Play()
-		end)
-		NoBtn.MouseLeave:Connect(function()
-			TweenService:Create(NoBtn, TweenInfo.new(0.12), {
-				BackgroundColor3 = Theme.ButtonBackground
-			}):Play()
-		end)
-
-		local function fadeBlur()
-			local t = TweenService:Create(Blur, TweenInfo.new(0.25), { Size = 0 })
-			t:Play()
-			t.Completed:Connect(function() Blur:Destroy() end)
-		end
-
-		NoBtn.MouseButton1Click:Connect(function()
-			playSound()
-			local t = TweenService:Create(Dim, TweenInfo.new(0.2), { BackgroundTransparency = 1 })
-			t:Play()
-			fadeBlur()
-			ConfirmGui:Destroy()
-			task.delay(0.3, function()
-				if ConfirmScreen then ConfirmScreen:Destroy() end
-			end)
-		end)
-
-		YesBtn.MouseButton1Click:Connect(function()
-			playSound()
-			Blur:Destroy()
-			ConfirmScreen:Destroy()
-			ScreenGui:Destroy()
-		end)
+		openConfirm()
 	end)
+
+	-- ============================================================
 
 	local dragging = false
 	local dragStart
