@@ -25,22 +25,20 @@ local function noSelect(obj)
 end
 
 local function getGuiParent()
-	local parent = nil
-	pcall(function()
-		if gethui then
-			parent = gethui()
-		elseif CoreGui and pcall(function() return CoreGui.Name end) then
-			local test = Instance.new("Folder")
-			test.Parent = CoreGui
-			test:Destroy()
-			parent = CoreGui
-		end
-	end)
-	if not parent then
-		local lp = LocalPlayer or Players.LocalPlayer
-		parent = lp:WaitForChild("PlayerGui")
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "AstralisHold"
+	gui.ResetOnSpawn = false
+	gui.DisplayOrder = 2147483647
+	gui.IgnoreGuiInset = true
+	gui.Enabled = false
+
+	pcall(function() gui.Parent = CoreGui end)
+	if not gui.Parent then
+		gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 	end
-	return parent
+
+	gui:Destroy()
+	return gui
 end
 
 function AstralisLib:CreateWindow(config)
@@ -88,6 +86,13 @@ function AstralisLib:CreateWindow(config)
 	end
 
 	local FULL_SIZE = config.Size or UDim2.new(0, 760, 0, 450)
+
+	local WINDOW_WIDTH = FULL_SIZE.X.Offset
+	local WINDOW_HEIGHT = FULL_SIZE.Y.Offset
+
+	if WINDOW_WIDTH <= 0 then WINDOW_WIDTH = 760 end
+	if WINDOW_HEIGHT <= 0 then WINDOW_HEIGHT = 450 end
+
 	local MINI_HEIGHT = 56
 	local HEADER_HEIGHT = config.HeaderHeight or 40
 	local SIDEBAR_WIDTH = config.SidebarWidth or 120
@@ -112,17 +117,26 @@ function AstralisLib:CreateWindow(config)
 	ScreenGui.ResetOnSpawn = false
 	ScreenGui.DisplayOrder = 2147483646
 	ScreenGui.IgnoreGuiInset = true
-	ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-	ScreenGui.Parent = getGuiParent()
+
+	pcall(function() ScreenGui.Parent = CoreGui end)
+	if not ScreenGui.Parent then ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
+
+	local ConfirmScreen = Instance.new("ScreenGui")
+	ConfirmScreen.Name = "AstralisConfirmGui"
+	ConfirmScreen.ResetOnSpawn = false
+	ConfirmScreen.DisplayOrder = 2147483647
+	ConfirmScreen.IgnoreGuiInset = true
+	ConfirmScreen.Enabled = false
+
+	pcall(function() ConfirmScreen.Parent = CoreGui end)
+	if not ConfirmScreen.Parent then ConfirmScreen.Parent = LocalPlayer:WaitForChild("PlayerGui") end
 
 	local Frame = Instance.new("CanvasGroup")
-	Frame.Name = "MainFrame"
 	Frame.Size = FULL_SIZE
 	Frame.Position = UDim2.new(0.5, 0, 0.5, 0)
 	Frame.AnchorPoint = Vector2.new(0.5, 0.5)
 	Frame.BackgroundColor3 = Theme.BackgroundColor
 	Frame.BorderSizePixel = 0
-	Frame.ZIndex = 1
 	Frame.Parent = ScreenGui
 
 	addCorner(Frame, 8)
@@ -155,7 +169,6 @@ function AstralisLib:CreateWindow(config)
 	end
 
 	local HeaderBar = Instance.new("Frame")
-	HeaderBar.Name = "HeaderBar"
 	HeaderBar.Size = UDim2.new(1, 0, 0, HEADER_HEIGHT)
 	HeaderBar.BackgroundColor3 = Theme.HeaderColor
 	HeaderBar.BorderSizePixel = 0
@@ -183,17 +196,7 @@ function AstralisLib:CreateWindow(config)
 	TitleLabel.ZIndex = 3
 	TitleLabel.Parent = HeaderBar
 
-	-- Dedicated drag zone (leaves right 80px free for buttons)
-	local DragZone = Instance.new("Frame")
-	DragZone.Name = "DragZone"
-	DragZone.Size = UDim2.new(1, -85, 1, 0)
-	DragZone.Position = UDim2.new(0, 0, 0, 0)
-	DragZone.BackgroundTransparency = 1
-	DragZone.ZIndex = 2
-	DragZone.Parent = HeaderBar
-
 	local CloseBtn = Instance.new("TextButton")
-	CloseBtn.Name = "CloseBtn"
 	CloseBtn.Size = UDim2.new(0, 40, 1, 0)
 	CloseBtn.Position = UDim2.new(1, -40, 0, 0)
 	CloseBtn.BackgroundTransparency = 1
@@ -202,14 +205,13 @@ function AstralisLib:CreateWindow(config)
 	CloseBtn.TextSize = 14
 	CloseBtn.TextColor3 = Color3.fromRGB(150, 150, 150)
 	CloseBtn.AutoButtonColor = false
-	CloseBtn.Active = true
-	CloseBtn.ZIndex = 5
+	CloseBtn.Modal = true
+	CloseBtn.ZIndex = 3
 	CloseBtn.Parent = HeaderBar
 
 	noSelect(CloseBtn)
 
 	local MinBtn = Instance.new("TextButton")
-	MinBtn.Name = "MinBtn"
 	MinBtn.Size = UDim2.new(0, 40, 1, 0)
 	MinBtn.Position = UDim2.new(1, -80, 0, 0)
 	MinBtn.BackgroundTransparency = 1
@@ -218,8 +220,8 @@ function AstralisLib:CreateWindow(config)
 	MinBtn.TextSize = 22
 	MinBtn.TextColor3 = Color3.fromRGB(150, 150, 150)
 	MinBtn.AutoButtonColor = false
-	MinBtn.Active = true
-	MinBtn.ZIndex = 5
+	MinBtn.Modal = true
+	MinBtn.ZIndex = 3
 	MinBtn.Parent = HeaderBar
 
 	noSelect(MinBtn)
@@ -237,36 +239,24 @@ function AstralisLib:CreateWindow(config)
 		TweenService:Create(MinBtn, TweenInfo.new(0.12), {TextColor3 = Color3.fromRGB(150, 150, 150)}):Play()
 	end)
 
-	-- ============ CONFIRM DIALOG OVERLAY ============
+	-- ============ CONFIRM DIALOG (pre-built, hidden) ============
 
-	local ConfirmContainer = Instance.new("Frame")
-	ConfirmContainer.Name = "ConfirmContainer"
-	ConfirmContainer.Size = UDim2.new(1, 0, 1, 0)
-	ConfirmContainer.BackgroundTransparency = 1
-	ConfirmContainer.Visible = false
-	ConfirmContainer.ZIndex = 100
-	ConfirmContainer.Parent = ScreenGui
-
-	local Dim = Instance.new("TextButton")
-	Dim.Name = "DimBackground"
+	local Dim = Instance.new("Frame")
 	Dim.Size = UDim2.new(1, 0, 1, 0)
 	Dim.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 	Dim.BackgroundTransparency = 1
 	Dim.BorderSizePixel = 0
-	Dim.Text = ""
-	Dim.AutoButtonColor = false
-	Dim.ZIndex = 101
-	Dim.Parent = ConfirmContainer
+	Dim.ZIndex = 1
+	Dim.Parent = ConfirmScreen
 
 	local ConfirmGui = Instance.new("Frame")
-	ConfirmGui.Name = "ConfirmBox"
 	ConfirmGui.Size = UDim2.new(0, 320, 0, 140)
 	ConfirmGui.Position = UDim2.new(0.5, 0, 0.5, 0)
 	ConfirmGui.AnchorPoint = Vector2.new(0.5, 0.5)
 	ConfirmGui.BackgroundColor3 = Theme.BackgroundColor
 	ConfirmGui.BorderSizePixel = 0
-	ConfirmGui.ZIndex = 102
-	ConfirmGui.Parent = ConfirmContainer
+	ConfirmGui.ZIndex = 2
+	ConfirmGui.Parent = ConfirmScreen
 
 	addCorner(ConfirmGui, 10)
 
@@ -286,7 +276,7 @@ function AstralisLib:CreateWindow(config)
 	ConfirmTitle.TextWrapped = true
 	ConfirmTitle.TextXAlignment = Enum.TextXAlignment.Left
 	ConfirmTitle.TextYAlignment = Enum.TextYAlignment.Center
-	ConfirmTitle.ZIndex = 103
+	ConfirmTitle.ZIndex = 3
 	ConfirmTitle.Parent = ConfirmGui
 
 	local YesBtn = Instance.new("TextButton")
@@ -299,8 +289,8 @@ function AstralisLib:CreateWindow(config)
 	YesBtn.TextSize = 14
 	YesBtn.TextColor3 = Color3.fromRGB(30, 30, 32)
 	YesBtn.AutoButtonColor = false
-	YesBtn.Active = true
-	YesBtn.ZIndex = 103
+	YesBtn.Modal = true
+	YesBtn.ZIndex = 3
 	YesBtn.Parent = ConfirmGui
 
 	addCorner(YesBtn, 8)
@@ -316,8 +306,8 @@ function AstralisLib:CreateWindow(config)
 	NoBtn.TextSize = 14
 	NoBtn.TextColor3 = Theme.ButtonTextColor
 	NoBtn.AutoButtonColor = false
-	NoBtn.Active = true
-	NoBtn.ZIndex = 103
+	NoBtn.Modal = true
+	NoBtn.ZIndex = 3
 	NoBtn.Parent = ConfirmGui
 
 	addCorner(NoBtn, 8)
@@ -326,7 +316,7 @@ function AstralisLib:CreateWindow(config)
 	local Blur = Instance.new("BlurEffect")
 	Blur.Size = 0
 	Blur.Enabled = false
-	pcall(function() Blur.Parent = Lighting end)
+	Blur.Parent = Lighting
 
 	YesBtn.MouseEnter:Connect(function()
 		TweenService:Create(YesBtn, TweenInfo.new(0.12), {
@@ -350,54 +340,31 @@ function AstralisLib:CreateWindow(config)
 		}):Play()
 	end)
 
-	local isConfirmOpen = false
-
 	local function openConfirm()
-		if isConfirmOpen then return end
-		isConfirmOpen = true
-
-		ConfirmContainer.Visible = true
+		ConfirmScreen.Enabled = true
 		Dim.BackgroundTransparency = 1
-		ConfirmGui.Position = UDim2.new(0.5, 0, 0.5, 12)
 
-		TweenService:Create(Dim, TweenInfo.new(0.2), {
+		TweenService:Create(Dim, TweenInfo.new(0.25), {
 			BackgroundTransparency = 0.5
 		}):Play()
 
-		TweenService:Create(ConfirmGui, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Position = UDim2.new(0.5, 0, 0.5, 0)
-		}):Play()
-
-		pcall(function()
-			Blur.Enabled = true
-			Blur.Size = 0
-			TweenService:Create(Blur, TweenInfo.new(0.2), { Size = 14 }):Play()
-		end)
+		Blur.Enabled = true
+		Blur.Size = 0
+		TweenService:Create(Blur, TweenInfo.new(0.25), { Size = 14 }):Play()
 	end
 
 	local function closeConfirm()
-		if not isConfirmOpen then return end
-		isConfirmOpen = false
+		local t = TweenService:Create(Dim, TweenInfo.new(0.2), { BackgroundTransparency = 1 })
+		t:Play()
 
-		TweenService:Create(Dim, TweenInfo.new(0.15), { BackgroundTransparency = 1 }):Play()
-		TweenService:Create(ConfirmGui, TweenInfo.new(0.15), {
-			Position = UDim2.new(0.5, 0, 0.5, 12)
-		}):Play()
-
-		pcall(function()
-			local b = TweenService:Create(Blur, TweenInfo.new(0.15), { Size = 0 })
-			b:Play()
-			b.Completed:Connect(function()
-				if not isConfirmOpen then
-					Blur.Enabled = false
-				end
-			end)
+		local b = TweenService:Create(Blur, TweenInfo.new(0.25), { Size = 0 })
+		b:Play()
+		b.Completed:Connect(function()
+			Blur.Enabled = false
 		end)
 
-		task.delay(0.15, function()
-			if not isConfirmOpen then
-				ConfirmContainer.Visible = false
-			end
+		task.delay(0.25, function()
+			ConfirmScreen.Enabled = false
 		end)
 	end
 
@@ -406,14 +373,10 @@ function AstralisLib:CreateWindow(config)
 		closeConfirm()
 	end)
 
-	Dim.MouseButton1Click:Connect(function()
-		playSound()
-		closeConfirm()
-	end)
-
 	YesBtn.MouseButton1Click:Connect(function()
 		playSound()
-		pcall(function() Blur:Destroy() end)
+		Blur:Destroy()
+		ConfirmScreen:Destroy()
 		ScreenGui:Destroy()
 	end)
 
@@ -422,28 +385,28 @@ function AstralisLib:CreateWindow(config)
 		openConfirm()
 	end)
 
-	-- ================== DRAGGING SYSTEM ==================
+	-- ============================================================
 
 	local dragging = false
 	local dragStart
 	local startPos
 
-	DragZone.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+	HeaderBar.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
 			dragging = true
 			dragStart = input.Position
 			startPos = Frame.Position
 		end
 	end)
 
-	DragZone.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+	HeaderBar.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
 			dragging = false
 		end
 	end)
 
 	UserInputService.InputChanged:Connect(function(input)
-		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+		if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
 			local delta = input.Position - dragStart
 			Frame.Position = UDim2.new(
 				startPos.X.Scale, startPos.X.Offset + delta.X,
@@ -515,6 +478,7 @@ function AstralisLib:CreateWindow(config)
 	local WindowObj = {}
 
 	function WindowObj:CreateTab(tabName)
+
 		local tabIndex = #Tabs + 1
 		local yPos = TAB_TOP + ((tabIndex - 1) * (TAB_HEIGHT + TAB_GAP))
 
@@ -531,6 +495,7 @@ function AstralisLib:CreateWindow(config)
 		TabBtn.TextXAlignment = Enum.TextXAlignment.Left
 		TabBtn.TextWrapped = false
 		TabBtn.AutoButtonColor = false
+		TabBtn.Modal = true
 		TabBtn.ZIndex = 4
 		TabBtn.Parent = Sidebar
 
@@ -674,6 +639,7 @@ function AstralisLib:CreateWindow(config)
 			Hit.BackgroundTransparency = 1
 			Hit.Text = ""
 			Hit.AutoButtonColor = false
+			Hit.Modal = true
 			Hit.ZIndex = 10
 			Hit.Parent = Holder
 
@@ -781,6 +747,7 @@ function AstralisLib:CreateWindow(config)
 			Btn.BackgroundTransparency = 1
 			Btn.Text = ""
 			Btn.AutoButtonColor = false
+			Btn.Modal = true
 			Btn.ZIndex = 7
 			Btn.Parent = Track
 
@@ -861,6 +828,7 @@ function AstralisLib:CreateWindow(config)
 			Btn.TextSize = 14
 			Btn.TextColor3 = Theme.ButtonTextColor
 			Btn.AutoButtonColor = false
+			Btn.Modal = true
 			Btn.ZIndex = 4
 			Btn.Parent = Holder
 
@@ -942,6 +910,7 @@ function AstralisLib:CreateWindow(config)
 			Btn.TextSize = 13
 			Btn.TextColor3 = Theme.ButtonTextColor
 			Btn.AutoButtonColor = false
+			Btn.Modal = true
 			Btn.ZIndex = 4
 			Btn.Parent = Holder
 
