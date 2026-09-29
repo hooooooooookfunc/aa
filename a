@@ -35,31 +35,32 @@ function AstralisLib:CreateWindow(config)
 		Font = config.Font or Enum.Font.Jura,
 		TitleFont = config.TitleFont or Enum.Font.Michroma,
 
-		TitleColor = config.TitleColor or Color3.fromRGB(255, 255, 255),
-		BackgroundColor = config.BackgroundColor or Color3.fromRGB(12, 12, 12),
-		HeaderColor = config.HeaderColor or Color3.fromRGB(20, 20, 22),
+		TitleColor = config.TitleColor or Color3.fromRGB(230, 230, 235),
+		BackgroundColor = config.BackgroundColor or Color3.fromRGB(18, 18, 20),
+		HeaderColor = config.HeaderColor or Color3.fromRGB(22, 22, 24),
 
-		SidebarColor = config.SidebarColor or Color3.fromRGB(22, 22, 22),
-		TabTextColor = config.TabTextColor or Color3.fromRGB(165, 165, 165),
+		SidebarColor = config.SidebarColor or Color3.fromRGB(24, 24, 26),
+		TabSelectedColor = config.TabSelectedColor or Color3.fromRGB(38, 38, 42),
+		TabTextColor = config.TabTextColor or Color3.fromRGB(150, 150, 160),
 		TabActiveTextColor = config.TabActiveTextColor or Color3.fromRGB(255, 255, 255),
 
-		BackgroundImage = config.BackgroundImage or "rbxassetid://136104557824981",
+		BackgroundImage = config.BackgroundImage or "",
 		ImageTransparency = config.ImageTransparency or 0.55,
 		ImageColor = config.ImageColor or Color3.fromRGB(140, 140, 140),
-		OverlayColor = config.OverlayColor or Color3.fromRGB(10, 10, 10),
-		OverlayTransparency = config.OverlayTransparency or 0.67,
+		OverlayColor = config.OverlayColor or Color3.fromRGB(18, 18, 20),
+		OverlayTransparency = config.OverlayTransparency or 1,
 
 		AccentColor = config.AccentColor or Color3.fromRGB(40, 175, 75),
 
 		ToggleOffColor = config.ToggleOffColor or Color3.fromRGB(180, 45, 45),
-		SliderBackground = config.SliderBackground or Color3.fromRGB(25, 25, 25),
-		SliderFillColor = config.SliderFillColor or Color3.fromRGB(55, 55, 55),
-		SliderTextColor = config.SliderTextColor or Color3.fromRGB(200, 200, 200),
-		ButtonBackground = config.ButtonBackground or Color3.fromRGB(30, 30, 30),
-		ButtonTextColor = config.ButtonTextColor or Color3.fromRGB(220, 220, 220),
-		TextColor = config.TextColor or Color3.fromRGB(225, 225, 225),
-		DescriptionColor = config.DescriptionColor or Color3.fromRGB(130, 130, 130),
-		StrokeColor = config.StrokeColor or Color3.fromRGB(42, 42, 42)
+		SliderBackground = config.SliderBackground or Color3.fromRGB(28, 28, 32),
+		SliderFillColor = config.SliderFillColor or Color3.fromRGB(55, 55, 60),
+		SliderTextColor = config.SliderTextColor or Color3.fromRGB(200, 200, 205),
+		ButtonBackground = config.ButtonBackground or Color3.fromRGB(32, 32, 36),
+		ButtonTextColor = config.ButtonTextColor or Color3.fromRGB(220, 220, 225),
+		TextColor = config.TextColor or Color3.fromRGB(225, 225, 230),
+		DescriptionColor = config.DescriptionColor or Color3.fromRGB(130, 130, 140),
+		StrokeColor = config.StrokeColor or Color3.fromRGB(35, 35, 40)
 	}
 
 	if config.SoundEnabled ~= nil then
@@ -76,10 +77,10 @@ function AstralisLib:CreateWindow(config)
 
 	local MINI_HEIGHT = 56
 	local HEADER_HEIGHT = config.HeaderHeight or 40
-	local SIDEBAR_WIDTH = config.SidebarWidth or 140
+	local SIDEBAR_WIDTH = config.SidebarWidth or 120
 	local TAB_HEIGHT = 32
-	local TAB_GAP = 6
-	local TAB_TOP = 12
+	local TAB_GAP = 8
+	local TAB_TOP = 16
 
 	local function playSound()
 		if not Theme.SoundEnabled then return end
@@ -129,13 +130,15 @@ function AstralisLib:CreateWindow(config)
 		Background.Parent = Frame
 	end
 
-	local DarkOverlay = Instance.new("Frame")
-	DarkOverlay.Size = UDim2.new(1, 0, 1, 0)
-	DarkOverlay.BackgroundColor3 = Theme.OverlayColor
-	DarkOverlay.BackgroundTransparency = Theme.OverlayTransparency
-	DarkOverlay.BorderSizePixel = 0
-	DarkOverlay.ZIndex = 1
-	DarkOverlay.Parent = Frame
+	if Theme.OverlayTransparency < 1 then
+		local DarkOverlay = Instance.new("Frame")
+		DarkOverlay.Size = UDim2.new(1, 0, 1, 0)
+		DarkOverlay.BackgroundColor3 = Theme.OverlayColor
+		DarkOverlay.BackgroundTransparency = Theme.OverlayTransparency
+		DarkOverlay.BorderSizePixel = 0
+		DarkOverlay.ZIndex = 1
+		DarkOverlay.Parent = Frame
+	end
 
 	local HeaderBar = Instance.new("Frame")
 	HeaderBar.Size = UDim2.new(1, 0, 0, HEADER_HEIGHT)
@@ -153,13 +156,13 @@ function AstralisLib:CreateWindow(config)
 	HeaderDivider.Parent = HeaderBar
 
 	local TitleLabel = Instance.new("TextLabel")
-	TitleLabel.Size = UDim2.new(0, 150, 1, 0)
+	TitleLabel.Size = UDim2.new(0, 200, 1, 0)
 	TitleLabel.Position = UDim2.new(0, 15, 0, 0)
 	TitleLabel.BackgroundTransparency = 1
 	TitleLabel.Text = Theme.Name
 	TitleLabel.TextColor3 = Theme.TitleColor
-	TitleLabel.TextSize = 18
-	TitleLabel.Font = Theme.Font
+	TitleLabel.TextSize = 16
+	TitleLabel.Font = Theme.TitleFont
 	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 	TitleLabel.TextYAlignment = Enum.TextYAlignment.Center
 	TitleLabel.ZIndex = 3
@@ -250,7 +253,7 @@ function AstralisLib:CreateWindow(config)
 	local Sidebar = Instance.new("Frame")
 	Sidebar.Size = UDim2.new(0, SIDEBAR_WIDTH, 1, 0)
 	Sidebar.BackgroundColor3 = Theme.SidebarColor
-	Sidebar.BackgroundTransparency = 0.1
+	Sidebar.BackgroundTransparency = 0
 	Sidebar.BorderSizePixel = 0
 	Sidebar.ZIndex = 2
 	Sidebar.Parent = Body
@@ -311,6 +314,7 @@ function AstralisLib:CreateWindow(config)
 		local TabBtn = Instance.new("TextButton")
 		TabBtn.Size = UDim2.new(1, -12, 0, TAB_HEIGHT)
 		TabBtn.Position = UDim2.new(0, 6, 0, yPos)
+		TabBtn.BackgroundColor3 = Theme.TabSelectedColor
 		TabBtn.BackgroundTransparency = 1
 		TabBtn.BorderSizePixel = 0
 		TabBtn.Text = tabName
@@ -325,6 +329,7 @@ function AstralisLib:CreateWindow(config)
 		TabBtn.Parent = Sidebar
 
 		noSelect(TabBtn)
+		addCorner(TabBtn, 6)
 
 		local tabPad = Instance.new("UIPadding")
 		tabPad.PaddingLeft = UDim.new(0, 12)
@@ -363,7 +368,11 @@ function AstralisLib:CreateWindow(config)
 			for idx, page in ipairs(Pages) do
 				local active = (idx == tabIndex)
 				page.Visible = active
-				Tabs[idx].TextColor3 = active and Theme.TabActiveTextColor or Theme.TabTextColor
+
+				TweenService:Create(Tabs[idx], TweenInfo.new(0.15), {
+					TextColor3 = active and Theme.TabActiveTextColor or Theme.TabTextColor,
+					BackgroundTransparency = active and 0 or 1
+				}):Play()
 			end
 		end
 
@@ -372,7 +381,7 @@ function AstralisLib:CreateWindow(config)
 		TabBtn.MouseEnter:Connect(function()
 			if ActiveTabIndex ~= tabIndex then
 				TweenService:Create(TabBtn, TweenInfo.new(0.12), {
-					TextColor3 = Color3.fromRGB(210, 210, 210)
+					TextColor3 = Color3.fromRGB(210, 210, 215)
 				}):Play()
 			end
 		end)
@@ -432,10 +441,12 @@ function AstralisLib:CreateWindow(config)
 			local Track = Instance.new("Frame")
 			Track.Size = UDim2.new(0, 44, 0, 20)
 			Track.Position = UDim2.new(0, TitleLbl.AbsoluteSize.X + 10, 0, 1)
-			Track.BackgroundColor3 = Color3.fromRGB(23, 23, 23)
+			Track.BackgroundColor3 = Color3.fromRGB(28, 28, 32)
 			Track.BorderSizePixel = 0
 			Track.ZIndex = 4
 			Track.Parent = Holder
+
+			addCorner(Track, 4)
 
 			local TrackStroke = Instance.new("UIStroke")
 			TrackStroke.Color = Theme.StrokeColor
@@ -475,7 +486,7 @@ function AstralisLib:CreateWindow(config)
 
 			Hit.MouseEnter:Connect(function()
 				TweenService:Create(TrackStroke, TweenInfo.new(0.12), {
-					Color = Color3.fromRGB(70, 70, 70)
+					Color = Color3.fromRGB(70, 70, 75)
 				}):Play()
 			end)
 
@@ -584,7 +595,7 @@ function AstralisLib:CreateWindow(config)
 			Btn.MouseEnter:Connect(function()
 				if not sliding then
 					TweenService:Create(TrackStroke, TweenInfo.new(0.12), {
-						Color = Color3.fromRGB(70, 70, 70)
+						Color = Color3.fromRGB(70, 70, 75)
 					}):Play()
 				end
 			end)
@@ -672,10 +683,10 @@ function AstralisLib:CreateWindow(config)
 
 			Btn.MouseEnter:Connect(function()
 				TweenService:Create(Btn, TweenInfo.new(0.12), {
-					BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+					BackgroundColor3 = Color3.fromRGB(45, 45, 50)
 				}):Play()
 				TweenService:Create(Stroke, TweenInfo.new(0.12), {
-					Color = Color3.fromRGB(70, 70, 70)
+					Color = Color3.fromRGB(70, 70, 75)
 				}):Play()
 			end)
 
@@ -754,10 +765,10 @@ function AstralisLib:CreateWindow(config)
 
 			Btn.MouseEnter:Connect(function()
 				TweenService:Create(Btn, TweenInfo.new(0.12), {
-					BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+					BackgroundColor3 = Color3.fromRGB(45, 45, 50)
 				}):Play()
 				TweenService:Create(Stroke, TweenInfo.new(0.12), {
-					Color = Color3.fromRGB(70, 70, 70)
+					Color = Color3.fromRGB(70, 70, 75)
 				}):Play()
 			end)
 
@@ -828,7 +839,7 @@ function AstralisLib:CreateWindow(config)
 			Box.MouseEnter:Connect(function()
 				if not Box:IsFocused() then
 					TweenService:Create(Stroke, TweenInfo.new(0.12), {
-						Color = Color3.fromRGB(70, 70, 70)
+						Color = Color3.fromRGB(70, 70, 75)
 					}):Play()
 				end
 			end)
