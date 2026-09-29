@@ -104,26 +104,27 @@ function AstralisLib:CreateWindow(config)
 	pcall(function() ScreenGui.Parent = CoreGui end)
 	if not ScreenGui.Parent then ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
 
-	-- Outer frame: rounded corners + clip
+	-- Outer: invisible, only there to clip everything to a rounded shape
 	local Frame = Instance.new("Frame")
 	Frame.Size = FULL_SIZE
 	Frame.Position = UDim2.new(0.5, 0, 0.5, 0)
 	Frame.AnchorPoint = Vector2.new(0.5, 0.5)
-	Frame.BackgroundColor3 = Theme.BackgroundColor
+	Frame.BackgroundTransparency = 1
 	Frame.BorderSizePixel = 0
 	Frame.ClipsDescendants = true
 	Frame.Parent = ScreenGui
 
 	addCorner(Frame, CORNER)
 
-	-- Inner: everything draws in here, gets clipped by outer corner
+	-- Inner: solid background with its own rounded corner
 	local Inner = Instance.new("Frame")
 	Inner.Size = UDim2.new(1, 0, 1, 0)
 	Inner.BackgroundColor3 = Theme.BackgroundColor
-	Inner.BackgroundTransparency = 1
 	Inner.BorderSizePixel = 0
-	Inner.ZIndex = 1
+	Inner.ZIndex = 0
 	Inner.Parent = Frame
+
+	addCorner(Inner, CORNER)
 
 	if Theme.BackgroundImage ~= "" then
 		local Background = Instance.new("ImageLabel")
@@ -830,8 +831,7 @@ function AstralisLib:CreateWindow(config)
 			Box.Position = UDim2.new(1, 0, 0.5, 0)
 			Box.BackgroundColor3 = Theme.ButtonBackground
 			Box.BorderSizePixel = 0
-			Box.Font = Theme.Font
-			Box.TextSize = 13
+			Box.Font = Theme.Font			Box.TextSize = 13
 			Box.TextColor3 = Theme.ButtonTextColor
 			Box.Text = tostring(default)
 			Box.ClearTextOnFocus = false
