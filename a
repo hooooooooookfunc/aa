@@ -9,7 +9,7 @@ local SoundService = game:GetService("SoundService")
 
 local function addCorner(obj, r)
 	local c = Instance.new("UICorner")
-	c.CornerRadius = UDim.new(3)
+	c.CornerRadius = UDim.new(4, or r)
 	c.Parent = obj
 	return c
 end
