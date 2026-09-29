@@ -263,10 +263,6 @@ function AstralisLib:CreateWindow(config)
 		}):Play()
 	end)
 
-	-- ============================================================
-	-- NOTIFICATIONS
-	-- ============================================================
-
 	local NotifyScreen = Instance.new("ScreenGui")
 	NotifyScreen.Name = "AstralisNotifyGui"
 	NotifyScreen.ResetOnSpawn = false
@@ -277,7 +273,7 @@ function AstralisLib:CreateWindow(config)
 	if not NotifyScreen.Parent then NotifyScreen.Parent = LocalPlayer:WaitForChild("PlayerGui") end
 
 	local NotifyHolder = Instance.new("Frame")
-	NotifyHolder.Size = UDim2.new(0, 260, 0, 0)
+	NotifyHolder.Size = UDim2.new(0, 230, 0, 0)
 	NotifyHolder.Position = UDim2.new(1, -20, 1, -20)
 	NotifyHolder.AnchorPoint = Vector2.new(1, 1)
 	NotifyHolder.BackgroundTransparency = 1
@@ -304,10 +300,10 @@ function AstralisLib:CreateWindow(config)
 		local closeBtnEnabled = true
 		if opts.Closeable ~= nil then closeBtnEnabled = opts.Closeable end
 
-		local notifWidth = 260
-		local notifHeight = 62
+		local notifWidth = 230
+		local notifHeight = 68
 		if #buttons > 0 then
-			notifHeight = notifHeight + 34
+			notifHeight = notifHeight + 40
 		end
 
 		local Notif = Instance.new("Frame")
@@ -325,8 +321,8 @@ function AstralisLib:CreateWindow(config)
 		NotifStroke.Parent = Notif
 
 		local AccentBar = Instance.new("Frame")
-		AccentBar.Size = UDim2.new(0, 3, 1, -14)
-		AccentBar.Position = UDim2.new(0, 0, 0, 7)
+		AccentBar.Size = UDim2.new(0, 3, 1, -16)
+		AccentBar.Position = UDim2.new(0, 0, 0, 8)
 		AccentBar.BackgroundColor3 = accent
 		AccentBar.BorderSizePixel = 0
 		AccentBar.ZIndex = 6
@@ -335,24 +331,24 @@ function AstralisLib:CreateWindow(config)
 		addCorner(AccentBar, 2)
 
 		local TitleLbl = Instance.new("TextLabel")
-		TitleLbl.Size = UDim2.new(1, -46, 0, 18)
-		TitleLbl.Position = UDim2.new(0, 14, 0, 8)
+		TitleLbl.Size = UDim2.new(1, -46, 0, 20)
+		TitleLbl.Position = UDim2.new(0, 14, 0, 10)
 		TitleLbl.BackgroundTransparency = 1
 		TitleLbl.Text = title
 		TitleLbl.Font = Theme.Font
-		TitleLbl.TextSize = 13
+		TitleLbl.TextSize = 14
 		TitleLbl.TextColor3 = Theme.TextColor
 		TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
 		TitleLbl.ZIndex = 6
 		TitleLbl.Parent = Notif
 
 		local TextLbl = Instance.new("TextLabel")
-		TextLbl.Size = UDim2.new(1, -28, 0, 14)
-		TextLbl.Position = UDim2.new(0, 14, 0, 28)
+		TextLbl.Size = UDim2.new(1, -28, 0, 16)
+		TextLbl.Position = UDim2.new(0, 14, 0, 32)
 		TextLbl.BackgroundTransparency = 1
 		TextLbl.Text = text
 		TextLbl.Font = Theme.Font
-		TextLbl.TextSize = 11
+		TextLbl.TextSize = 12
 		TextLbl.TextColor3 = Theme.DescriptionColor
 		TextLbl.TextXAlignment = Enum.TextXAlignment.Left
 		TextLbl.ZIndex = 6
@@ -360,7 +356,7 @@ function AstralisLib:CreateWindow(config)
 
 		local CloseIcon = Instance.new("TextButton")
 		CloseIcon.Size = UDim2.new(0, 20, 0, 20)
-		CloseIcon.Position = UDim2.new(1, -26, 0, 6)
+		CloseIcon.Position = UDim2.new(1, -26, 0, 8)
 		CloseIcon.BackgroundTransparency = 1
 		CloseIcon.Text = "X"
 		CloseIcon.Font = Enum.Font.Arcade
@@ -387,8 +383,8 @@ function AstralisLib:CreateWindow(config)
 
 		if #buttons > 0 then
 			local BtnRow = Instance.new("Frame")
-			BtnRow.Size = UDim2.new(1, -28, 0, 24)
-			BtnRow.Position = UDim2.new(0, 14, 0, 48)
+			BtnRow.Size = UDim2.new(1, -28, 0, 28)
+			BtnRow.Position = UDim2.new(0, 14, 0, 56)
 			BtnRow.BackgroundTransparency = 1
 			BtnRow.ZIndex = 6
 			BtnRow.Parent = Notif
@@ -402,12 +398,12 @@ function AstralisLib:CreateWindow(config)
 			for i, btnData in ipairs(buttons) do
 				local Btn = Instance.new("TextButton")
 				Btn.Size = UDim2.new(1 / #buttons, -6 * (#buttons - 1) / #buttons, 1, 0)
-				Btn.BackgroundColor3 = btnData.Color or Theme.ButtonBackground
+				Btn.BackgroundColor3 = Theme.ButtonBackground
 				Btn.BorderSizePixel = 0
 				Btn.Text = btnData.Text or ("Button " .. i)
 				Btn.Font = Theme.Font
-				Btn.TextSize = 11
-				Btn.TextColor3 = btnData.TextColor or Theme.ButtonTextColor
+				Btn.TextSize = 12
+				Btn.TextColor3 = Theme.ButtonTextColor
 				Btn.AutoButtonColor = false
 				Btn.Modal = true
 				Btn.LayoutOrder = i
@@ -422,9 +418,9 @@ function AstralisLib:CreateWindow(config)
 				Btn.MouseEnter:Connect(function()
 					TweenService:Create(Btn, TweenInfo.new(0.12), {
 						BackgroundColor3 = Color3.new(
-							math.min(origBg.R + 0.1, 1),
-							math.min(origBg.G + 0.1, 1),
-							math.min(origBg.B + 0.1, 1)
+							math.min(origBg.R + 0.08, 1),
+							math.min(origBg.G + 0.08, 1),
+							math.min(origBg.B + 0.08, 1)
 						)
 					}):Play()
 				end)
@@ -495,10 +491,6 @@ function AstralisLib:CreateWindow(config)
 		}
 	end
 
-	-- ============================================================
-	-- CONFIRM DIALOG
-	-- ============================================================
-
 	local ConfirmScreen = Instance.new("ScreenGui")
 	ConfirmScreen.Name = "AstralisConfirmGui"
 	ConfirmScreen.ResetOnSpawn = false
@@ -551,12 +543,12 @@ function AstralisLib:CreateWindow(config)
 	local YesBtn = Instance.new("TextButton")
 	YesBtn.Size = UDim2.new(0.5, -22, 0, 36)
 	YesBtn.Position = UDim2.new(0, 15, 1, -51)
-	YesBtn.BackgroundColor3 = Theme.AccentColor
+	YesBtn.BackgroundColor3 = Theme.ButtonBackground
 	YesBtn.BorderSizePixel = 0
 	YesBtn.Text = "Yes"
 	YesBtn.Font = Theme.Font
 	YesBtn.TextSize = 14
-	YesBtn.TextColor3 = Color3.fromRGB(30, 30, 32)
+	YesBtn.TextColor3 = Theme.ButtonTextColor
 	YesBtn.AutoButtonColor = false
 	YesBtn.Modal = true
 	YesBtn.ZIndex = 3
@@ -589,12 +581,12 @@ function AstralisLib:CreateWindow(config)
 
 	YesBtn.MouseEnter:Connect(function()
 		TweenService:Create(YesBtn, TweenInfo.new(0.12), {
-			BackgroundColor3 = Color3.fromRGB(220, 220, 225)
+			BackgroundColor3 = Color3.fromRGB(65, 65, 70)
 		}):Play()
 	end)
 	YesBtn.MouseLeave:Connect(function()
 		TweenService:Create(YesBtn, TweenInfo.new(0.12), {
-			BackgroundColor3 = Theme.AccentColor
+			BackgroundColor3 = Theme.ButtonBackground
 		}):Play()
 	end)
 
