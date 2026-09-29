@@ -215,19 +215,36 @@ function AstralisLib:CreateWindow(config)
 	CloseBtn.MouseButton1Click:Connect(function()
 		playSound()
 
-		if ScreenGui:FindFirstChild("AstralisConfirm") then
-			ScreenGui.AstralisConfirm:Destroy()
-		end
+		local oldConfirm = CoreGui:FindFirstChild("AstralisConfirmGui") or LocalPlayer.PlayerGui:FindFirstChild("AstralisConfirmGui")
+		if oldConfirm then oldConfirm:Destroy() end
+
+		local ConfirmScreen = Instance.new("ScreenGui")
+		ConfirmScreen.Name = "AstralisConfirmGui"
+		ConfirmScreen.ResetOnSpawn = false
+		ConfirmScreen.DisplayOrder = 2147483647
+		ConfirmScreen.IgnoreGuiInset = true
+
+		pcall(function() ConfirmScreen.Parent = CoreGui end)
+		if not ConfirmScreen.Parent then ConfirmScreen.Parent = LocalPlayer:WaitForChild("PlayerGui") end
+
+		local Dim = Instance.new("Frame")
+		Dim.Size = UDim2.new(1, 0, 1, 0)
+		Dim.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+		Dim.BackgroundTransparency = 1
+		Dim.BorderSizePixel = 0
+		Dim.ZIndex = 1
+		Dim.Parent = ConfirmScreen
+
+		TweenService:Create(Dim, TweenInfo.new(0.25), { BackgroundTransparency = 0.5 }):Play()
 
 		local ConfirmGui = Instance.new("Frame")
-		ConfirmGui.Name = "AstralisConfirm"
 		ConfirmGui.Size = UDim2.new(0, 320, 0, 140)
 		ConfirmGui.Position = UDim2.new(0.5, 0, 0.5, 0)
 		ConfirmGui.AnchorPoint = Vector2.new(0.5, 0.5)
 		ConfirmGui.BackgroundColor3 = Theme.BackgroundColor
 		ConfirmGui.BorderSizePixel = 0
-		ConfirmGui.ZIndex = 50
-		ConfirmGui.Parent = ScreenGui
+		ConfirmGui.ZIndex = 2
+		ConfirmGui.Parent = ConfirmScreen
 
 		addCorner(ConfirmGui, 10)
 
@@ -247,7 +264,7 @@ function AstralisLib:CreateWindow(config)
 		Title.TextWrapped = true
 		Title.TextXAlignment = Enum.TextXAlignment.Left
 		Title.TextYAlignment = Enum.TextYAlignment.Center
-		Title.ZIndex = 51
+		Title.ZIndex = 3
 		Title.Parent = ConfirmGui
 
 		local YesBtn = Instance.new("TextButton")
@@ -260,7 +277,7 @@ function AstralisLib:CreateWindow(config)
 		YesBtn.TextSize = 14
 		YesBtn.TextColor3 = Color3.fromRGB(30, 30, 32)
 		YesBtn.AutoButtonColor = false
-		YesBtn.ZIndex = 51
+		YesBtn.ZIndex = 3
 		YesBtn.Parent = ConfirmGui
 
 		addCorner(YesBtn, 8)
@@ -276,7 +293,7 @@ function AstralisLib:CreateWindow(config)
 		NoBtn.TextSize = 14
 		NoBtn.TextColor3 = Theme.ButtonTextColor
 		NoBtn.AutoButtonColor = false
-		NoBtn.ZIndex = 51
+		NoBtn.ZIndex = 3
 		NoBtn.Parent = ConfirmGui
 
 		addCorner(NoBtn, 8)
@@ -285,7 +302,6 @@ function AstralisLib:CreateWindow(config)
 		local Blur = Instance.new("BlurEffect")
 		Blur.Size = 0
 		Blur.Parent = Lighting
-
 		TweenService:Create(Blur, TweenInfo.new(0.25), { Size = 14 }):Play()
 
 		YesBtn.MouseEnter:Connect(function()
@@ -310,23 +326,27 @@ function AstralisLib:CreateWindow(config)
 			}):Play()
 		end)
 
-		local function closeConfirm()
-			local fadeOut = TweenService:Create(Blur, TweenInfo.new(0.25), { Size = 0 })
-			fadeOut:Play()
-			fadeOut.Completed:Connect(function()
-				Blur:Destroy()
-			end)
-			ConfirmGui:Destroy()
+		local function fadeBlur()
+			local t = TweenService:Create(Blur, TweenInfo.new(0.25), { Size = 0 })
+			t:Play()
+			t.Completed:Connect(function() Blur:Destroy() end)
 		end
 
 		NoBtn.MouseButton1Click:Connect(function()
 			playSound()
-			closeConfirm()
+			local t = TweenService:Create(Dim, TweenInfo.new(0.2), { BackgroundTransparency = 1 })
+			t:Play()
+			fadeBlur()
+			ConfirmGui:Destroy()
+			task.delay(0.3, function()
+				if ConfirmScreen then ConfirmScreen:Destroy() end
+			end)
 		end)
 
 		YesBtn.MouseButton1Click:Connect(function()
 			playSound()
 			Blur:Destroy()
+			ConfirmScreen:Destroy()
 			ScreenGui:Destroy()
 		end)
 	end)
