@@ -14,24 +14,6 @@ local function addCorner(obj, r)
 	return c
 end
 
-local function hover(obj, props, time, style)
-	local info = TweenInfo.new(time or 0.12, style or Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-	obj.MouseEnter:Connect(function()
-		TweenService:Create(obj, info, props):Play()
-	end)
-	obj.MouseLeave:Connect(function()
-		local reverse = {}
-		for k, _ in pairs(props) do
-			if k == "BackgroundTransparency" then reverse[k] = obj.BackgroundTransparency
-			elseif k == "BackgroundColor3" then reverse[k] = obj.BackgroundColor3
-			elseif k == "TextColor3" then reverse[k] = obj.TextColor3
-			elseif k == "TextTransparency" then reverse[k] = obj.TextTransparency
-			end
-		end
-		TweenService:Create(obj, info, reverse):Play()
-	end)
-end
-
 function AstralisLib:CreateWindow(config)
 	config = config or {}
 
@@ -85,8 +67,10 @@ function AstralisLib:CreateWindow(config)
 
 	local MINI_HEIGHT = 56
 	local HEADER_HEIGHT = config.HeaderHeight or 40
-	local SIDEBAR_WIDTH = config.SidebarWidth or 80
-	local TAB_PADDING = 8
+	local SIDEBAR_WIDTH = config.SidebarWidth or 140
+	local TAB_HEIGHT = 32
+	local TAB_GAP = 6
+	local TAB_TOP = 12
 
 	local function playSound()
 		if not Theme.SoundEnabled then return end
@@ -187,8 +171,6 @@ function AstralisLib:CreateWindow(config)
 	CloseBtn.ZIndex = 3
 	CloseBtn.Parent = HeaderBar
 
-	hover(CloseBtn, { TextColor3 = Color3.fromRGB(240, 70, 70) })
-
 	local MinBtn = Instance.new("TextButton")
 	MinBtn.Size = UDim2.new(0, 40, 1, 0)
 	MinBtn.Position = UDim2.new(1, -80, 0, 0)
@@ -204,7 +186,18 @@ function AstralisLib:CreateWindow(config)
 	MinBtn.ZIndex = 3
 	MinBtn.Parent = HeaderBar
 
-	hover(MinBtn, { TextColor3 = Color3.fromRGB(240, 240, 240) })
+	CloseBtn.MouseEnter:Connect(function()
+		TweenService:Create(CloseBtn, TweenInfo.new(0.12), {TextColor3 = Color3.fromRGB(240, 70, 70)}):Play()
+	end)
+	CloseBtn.MouseLeave:Connect(function()
+		TweenService:Create(CloseBtn, TweenInfo.new(0.12), {TextColor3 = Color3.fromRGB(150, 150, 150)}):Play()
+	end)
+	MinBtn.MouseEnter:Connect(function()
+		TweenService:Create(MinBtn, TweenInfo.new(0.12), {TextColor3 = Color3.fromRGB(240, 240, 240)}):Play()
+	end)
+	MinBtn.MouseLeave:Connect(function()
+		TweenService:Create(MinBtn, TweenInfo.new(0.12), {TextColor3 = Color3.fromRGB(150, 150, 150)}):Play()
+	end)
 
 	CloseBtn.MouseButton1Click:Connect(function()
 		playSound()
@@ -252,20 +245,6 @@ function AstralisLib:CreateWindow(config)
 	Sidebar.BorderSizePixel = 0
 	Sidebar.ZIndex = 2
 	Sidebar.Parent = Body
-
-	local SidebarLayout = Instance.new("UIListLayout")
-	SidebarLayout.FillDirection = Enum.FillDirection.Vertical
-	SidebarLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	SidebarLayout.VerticalAlignment = Enum.VerticalAlignment.Top
-	SidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	SidebarLayout.Padding = UDim.new(0, TAB_PADDING)
-	SidebarLayout.Parent = Sidebar
-
-	local SidebarPadding = Instance.new("UIPadding")
-	SidebarPadding.PaddingTop = UDim.new(0, 15)
-	SidebarPadding.PaddingLeft = UDim.new(0, 6)
-	SidebarPadding.PaddingRight = UDim.new(0, 6)
-	SidebarPadding.Parent = Sidebar
 
 	local SidebarDivider = Instance.new("Frame")
 	SidebarDivider.Size = UDim2.new(0, 1, 1, 0)
@@ -317,10 +296,14 @@ function AstralisLib:CreateWindow(config)
 
 	function WindowObj:CreateTab(tabName)
 
+		local tabIndex = #Tabs + 1
+		local yPos = TAB_TOP + ((tabIndex - 1) * (TAB_HEIGHT + TAB_GAP))
+
 		local TabBtn = Instance.new("TextButton")
-		TabBtn.Size = UDim2.new(1, -12, 0, 32)
-		TabBtn.BackgroundTransparency = 1
+		TabBtn.Size = UDim2.new(1, -12, 0, TAB_HEIGHT)
+		TabBtn.Position = UDim2.new(0, 6, 0, yPos)
 		TabBtn.BackgroundColor3 = Theme.AccentColor
+		TabBtn.BackgroundTransparency = 1
 		TabBtn.BorderSizePixel = 0
 		TabBtn.Text = tabName
 		TabBtn.TextColor3 = Theme.TabTextColor
@@ -358,9 +341,6 @@ function AstralisLib:CreateWindow(config)
 		Padding.PaddingRight = UDim.new(0, 20)
 		Padding.PaddingBottom = UDim.new(0, 20)
 		Padding.Parent = Page
-
-		local tabIndex = #Tabs + 1
-		TabBtn.LayoutOrder = tabIndex
 
 		table.insert(Tabs, TabBtn)
 		table.insert(Pages, Page)
