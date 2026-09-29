@@ -30,7 +30,7 @@ function AstralisLib:CreateWindow(config)
 		BackgroundColor = config.BackgroundColor or Color3.fromRGB(12, 12, 12),
 		HeaderColor = config.HeaderColor or Color3.fromRGB(20, 20, 22),
 
-		SidebarColor = config.SidebarColor or Color3.fromRGB(22, 22, 22),
+		SidebarColor = config.SidebarColor or Color3.fromRGB(18, 18, 18),
 		TabTextColor = config.TabTextColor or Color3.fromRGB(165, 165, 165),
 		TabActiveTextColor = config.TabActiveTextColor or Color3.fromRGB(255, 255, 255),
 
@@ -66,9 +66,10 @@ function AstralisLib:CreateWindow(config)
 	if WINDOW_HEIGHT <= 0 then WINDOW_HEIGHT = 450 end
 
 	local MINI_HEIGHT = 56
-	local HEADER_HEIGHT = config.HeaderHeight or 40
-	local SIDEBAR_WIDTH = config.SidebarWidth or 60
-	local TAB_PADDING = 20
+	local HEADER_HEIGHT = config.HeaderHeight or 56
+	local SIDEBAR_WIDTH = config.SidebarWidth or 140
+	local TAB_HEIGHT = config.TabHeight or 34
+	local TAB_GAP = config.TabGap or 2
 
 	local function playSound()
 		if not Theme.SoundEnabled then return end
@@ -142,13 +143,13 @@ function AstralisLib:CreateWindow(config)
 	HeaderDivider.Parent = HeaderBar
 
 	local TitleLabel = Instance.new("TextLabel")
-	TitleLabel.Size = UDim2.new(0, 150, 1, 0)
-	TitleLabel.Position = UDim2.new(0, 15, 0, 0)
+	TitleLabel.Size = UDim2.new(1, -100, 1, 0)
+	TitleLabel.Position = UDim2.new(0, 18, 0, 0)
 	TitleLabel.BackgroundTransparency = 1
-	TitleLabel.Text = Theme.Name
+	TitleLabel.Text = Theme.Name .. "  " .. Theme.Subtitle
 	TitleLabel.TextColor3 = Theme.TitleColor
-	TitleLabel.TextSize = 18
-	TitleLabel.Font = Theme.Font
+	TitleLabel.TextSize = 22
+	TitleLabel.Font = Theme.TitleFont
 	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 	TitleLabel.TextYAlignment = Enum.TextYAlignment.Center
 	TitleLabel.ZIndex = 3
@@ -224,7 +225,7 @@ function AstralisLib:CreateWindow(config)
 	local Sidebar = Instance.new("Frame")
 	Sidebar.Size = UDim2.new(0, SIDEBAR_WIDTH, 1, 0)
 	Sidebar.BackgroundColor3 = Theme.SidebarColor
-	Sidebar.BackgroundTransparency = 0.1
+	Sidebar.BackgroundTransparency = 0.15
 	Sidebar.BorderSizePixel = 0
 	Sidebar.ZIndex = 2
 	Sidebar.Parent = Body
@@ -247,6 +248,7 @@ function AstralisLib:CreateWindow(config)
 	local Tabs = {}
 	local Pages = {}
 	local ActiveTabIndex = 1
+	local yPos = 10
 
 	local uiVisible = true
 	local uiMinimized = false
@@ -280,34 +282,33 @@ function AstralisLib:CreateWindow(config)
 	function WindowObj:CreateTab(tabName)
 
 		local TabBtn = Instance.new("TextButton")
-		TabBtn.AutomaticSize = Enum.AutomaticSize.X
-		TabBtn.Size = UDim2.new(0, 0, 1, 0)
+		TabBtn.Size = UDim2.new(1, -16, 0, TAB_HEIGHT)
+		TabBtn.Position = UDim2.new(0, 8, 0, yPos)
+		TabBtn.BackgroundColor3 = Theme.SidebarColor
 		TabBtn.BackgroundTransparency = 1
 		TabBtn.BorderSizePixel = 0
-		TabBtn.Text = tabName
-		TabBtn.TextColor3 = Theme.TabTextColor
-		TabBtn.Font = Theme.Font
-		TabBtn.TextSize = 14
+		TabBtn.Text = ""
 		TabBtn.SelectionImageObject = nil
 		TabBtn.AutoButtonColor = false
 		TabBtn.Modal = true
 		TabBtn.ZIndex = 4
-		TabBtn.Parent = HeaderBar
+		TabBtn.Parent = Sidebar
 
-		local TabPadding = Instance.new("UIPadding")
-		TabPadding.PaddingLeft = UDim.new(0, 10)
-		TabPadding.PaddingRight = UDim.new(0, 10)
-		TabPadding.Parent = TabBtn
+		addCorner(TabBtn, 4)
 
-		if not HeaderBar:FindFirstChild("TabLayout") then
-			local TabLayout = Instance.new("UIListLayout")
-			TabLayout.FillDirection = Enum.FillDirection.Horizontal
-			TabLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-			TabLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-			TabLayout.SortOrder = Enum.SortOrder.LayoutOrder
-			TabLayout.Padding = UDim.new(0, TAB_PADDING)
-			TabLayout.Parent = HeaderBar
-		end
+		local TabLabel = Instance.new("TextLabel")
+		TabLabel.Size = UDim2.new(1, -20, 1, 0)
+		TabLabel.Position = UDim2.new(0, 10, 0, 0)
+		TabLabel.BackgroundTransparency = 1
+		TabLabel.Text = tabName
+		TabLabel.TextColor3 = Theme.TabTextColor
+		TabLabel.Font = Theme.Font
+		TabLabel.TextSize = 14
+		TabLabel.TextXAlignment = Enum.TextXAlignment.Left
+		TabLabel.ZIndex = 5
+		TabLabel.Parent = TabBtn
+
+		yPos = yPos + TAB_HEIGHT + TAB_GAP
 
 		local Page = Instance.new("ScrollingFrame")
 		Page.Size = UDim2.new(1, 0, 1, 0)
@@ -333,9 +334,8 @@ function AstralisLib:CreateWindow(config)
 		Padding.Parent = Page
 
 		local tabIndex = #Tabs + 1
-		TabBtn.LayoutOrder = tabIndex
 
-		table.insert(Tabs, TabBtn)
+		table.insert(Tabs, {Btn = TabBtn, Label = TabLabel})
 		table.insert(Pages, Page)
 
 		local function selectTab()
@@ -344,7 +344,8 @@ function AstralisLib:CreateWindow(config)
 
 			for idx, page in ipairs(Pages) do
 				page.Visible = (idx == tabIndex)
-				Tabs[idx].TextColor3 = (idx == tabIndex) and Theme.TabActiveTextColor or Theme.TabTextColor
+				Tabs[idx].Btn.BackgroundTransparency = (idx == tabIndex) and 0.3 or 1
+				Tabs[idx].Label.TextColor3 = (idx == tabIndex) and Theme.TabActiveTextColor or Theme.TabTextColor
 			end
 		end
 
