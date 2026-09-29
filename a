@@ -67,8 +67,8 @@ function AstralisLib:CreateWindow(config)
 
 	local MINI_HEIGHT = 56
 	local HEADER_HEIGHT = config.HeaderHeight or 40
-	local SIDEBAR_WIDTH = config.SidebarWidth or 60
-	local TAB_PADDING = 20
+	local SIDEBAR_WIDTH = config.SidebarWidth or 80 -- Slightly widened to comfortably fit tab text
+	local TAB_PADDING = 8
 
 	local function playSound()
 		if not Theme.SoundEnabled then return end
@@ -154,23 +154,6 @@ function AstralisLib:CreateWindow(config)
 	TitleLabel.ZIndex = 3
 	TitleLabel.Parent = HeaderBar
 
-	-- NEW: Dedicated container for tab buttons to prevent layout corruption
-	local TabHolder = Instance.new("Frame")
-	TabHolder.Size = UDim2.new(1, -240, 1, 0) -- Subtracts space for Title and Window Buttons
-	TabHolder.Position = UDim2.new(0, 160, 0, 0)
-	TabHolder.BackgroundTransparency = 1
-	TabHolder.BorderSizePixel = 0
-	TabHolder.ZIndex = 3
-	TabHolder.Parent = HeaderBar
-
-	local TabHolderLayout = Instance.new("UIListLayout")
-	TabHolderLayout.FillDirection = Enum.FillDirection.Horizontal
-	TabHolderLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-	TabHolderLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-	TabHolderLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	TabHolderLayout.Padding = UDim.new(0, TAB_PADDING)
-	TabHolderLayout.Parent = TabHolder
-
 	local CloseBtn = Instance.new("TextButton")
 	CloseBtn.Size = UDim2.new(0, 40, 1, 0)
 	CloseBtn.Position = UDim2.new(1, -40, 0, 0)
@@ -248,6 +231,22 @@ function AstralisLib:CreateWindow(config)
 	Sidebar.ZIndex = 2
 	Sidebar.Parent = Body
 
+	-- Set up vertical layout inside the sidebar
+	local SidebarLayout = Instance.new("UIListLayout")
+	SidebarLayout.FillDirection = Enum.FillDirection.Vertical
+	SidebarLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	SidebarLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+	SidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	SidebarLayout.Padding = UDim.new(0, TAB_PADDING)
+	SidebarLayout.Parent = Sidebar
+
+	local SidebarPadding = Instance.new("UIPadding")
+	SidebarPadding.PaddingTop = UDim.new(0, 15)
+	SidebarPadding.PaddingBottom = UDim.new(0, 15)
+	SidebarPadding.PaddingLeft = UDim.new(0, 6)
+	SidebarPadding.PaddingRight = UDim.new(0, 6)
+	SidebarPadding.Parent = Sidebar
+
 	local SidebarDivider = Instance.new("Frame")
 	SidebarDivider.Size = UDim2.new(0, 1, 1, 0)
 	SidebarDivider.Position = UDim2.new(1, -1, 0, 0)
@@ -299,25 +298,22 @@ function AstralisLib:CreateWindow(config)
 	function WindowObj:CreateTab(tabName)
 
 		local TabBtn = Instance.new("TextButton")
-		TabBtn.AutomaticSize = Enum.AutomaticSize.X
-		TabBtn.Size = UDim2.new(0, 0, 1, 0)
+		TabBtn.Size = UDim2.new(1, 0, 0, 32) -- Fills sidebar width, looks clean stacked vertically
 		TabBtn.BackgroundTransparency = 1
 		TabBtn.BorderSizePixel = 0
 		TabBtn.Text = tabName
 		TabBtn.TextColor3 = Theme.TabTextColor
 		TabBtn.Font = Theme.Font
-		TabBtn.TextSize = 14
+		TabBtn.TextSize = 13
+		TabBtn.TextWrapped = true
 		TabBtn.SelectionImageObject = nil
 		TabBtn.Selectable = false
 		TabBtn.AutoButtonColor = false
 		TabBtn.Modal = true
 		TabBtn.ZIndex = 4
-		TabBtn.Parent = TabHolder -- Changed parent from HeaderBar to TabHolder
+		TabBtn.Parent = Sidebar -- Correctly parented to Sidebar!
 
-		local TabPadding = Instance.new("UIPadding")
-		TabPadding.PaddingLeft = UDim.new(0, 10)
-		TabPadding.PaddingRight = UDim.new(0, 10)
-		TabPadding.Parent = TabBtn
+		addCorner(TabBtn, 6)
 
 		local Page = Instance.new("ScrollingFrame")
 		Page.Size = UDim2.new(1, 0, 1, 0)
@@ -353,8 +349,12 @@ function AstralisLib:CreateWindow(config)
 			ActiveTabIndex = tabIndex
 
 			for idx, page in ipairs(Pages) do
-				page.Visible = (idx == tabIndex)
-				Tabs[idx].TextColor3 = (idx == tabIndex) and Theme.TabActiveTextColor or Theme.TabTextColor
+				local active = (idx == tabIndex)
+				page.Visible = active
+				Tabs[idx].TextColor3 = active and Theme.TabActiveTextColor or Theme.TabTextColor
+				-- Soft highlight background for the active tab inside the sidebar
+				Tabs[idx].BackgroundTransparency = active and 0.92 or 1
+				Tabs[idx].BackgroundColor3 = Theme.AccentColor
 			end
 		end
 
