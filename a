@@ -263,7 +263,6 @@ function AstralisLib:CreateWindow(config)
 
 	local SidebarPadding = Instance.new("UIPadding")
 	SidebarPadding.PaddingTop = UDim.new(0, 15)
-	SidebarPadding.PaddingBottom = UDim.new(0, 15)
 	SidebarPadding.PaddingLeft = UDim.new(0, 6)
 	SidebarPadding.PaddingRight = UDim.new(0, 6)
 	SidebarPadding.Parent = Sidebar
@@ -319,7 +318,7 @@ function AstralisLib:CreateWindow(config)
 	function WindowObj:CreateTab(tabName)
 
 		local TabBtn = Instance.new("TextButton")
-		TabBtn.Size = UDim2.new(1, 0, 0, 32)
+		TabBtn.Size = UDim2.new(1, -12, 0, 32)
 		TabBtn.BackgroundTransparency = 1
 		TabBtn.BackgroundColor3 = Theme.AccentColor
 		TabBtn.BorderSizePixel = 0
