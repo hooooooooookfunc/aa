@@ -104,8 +104,7 @@ function AstralisLib:CreateWindow(config)
 	pcall(function() ScreenGui.Parent = CoreGui end)
 	if not ScreenGui.Parent then ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
 
-	-- FIXED: Changed standard Frame to CanvasGroup to allow absolute round corner clipping on children
-	local Frame = Instance.new("CanvasGroup")
+	local Frame = Instance.new("Frame")
 	Frame.Size = FULL_SIZE
 	Frame.Position = UDim2.new(0.5, 0, 0.5, 0)
 	Frame.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -346,7 +345,6 @@ function AstralisLib:CreateWindow(config)
 		Page.Size = UDim2.new(1, 0, 1, 0)
 		Page.BackgroundTransparency = 1
 		Page.BorderSizePixel = 0
-		Page.PageNavigationMode = Enum.PageNavigationMode.None
 		Page.ScrollBarThickness = 4
 		Page.ScrollBarImageColor3 = Theme.ButtonBackground
 		Page.AutomaticCanvasSize = Enum.AutomaticSize.Y
