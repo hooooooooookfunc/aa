@@ -25,16 +25,20 @@ local function noSelect(obj)
 end
 
 local function getGuiParent()
-	local parent
+	local parent = nil
 	pcall(function()
 		if gethui then
 			parent = gethui()
-		elseif CoreGui then
+		elseif CoreGui and pcall(function() return CoreGui.Name end) then
+			local test = Instance.new("Folder")
+			test.Parent = CoreGui
+			test:Destroy()
 			parent = CoreGui
 		end
 	end)
 	if not parent then
-		parent = LocalPlayer:WaitForChild("PlayerGui")
+		local lp = LocalPlayer or Players.LocalPlayer
+		parent = lp:WaitForChild("PlayerGui")
 	end
 	return parent
 end
@@ -108,9 +112,11 @@ function AstralisLib:CreateWindow(config)
 	ScreenGui.ResetOnSpawn = false
 	ScreenGui.DisplayOrder = 2147483646
 	ScreenGui.IgnoreGuiInset = true
+	ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 	ScreenGui.Parent = getGuiParent()
 
 	local Frame = Instance.new("CanvasGroup")
+	Frame.Name = "MainFrame"
 	Frame.Size = FULL_SIZE
 	Frame.Position = UDim2.new(0.5, 0, 0.5, 0)
 	Frame.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -149,6 +155,7 @@ function AstralisLib:CreateWindow(config)
 	end
 
 	local HeaderBar = Instance.new("Frame")
+	HeaderBar.Name = "HeaderBar"
 	HeaderBar.Size = UDim2.new(1, 0, 0, HEADER_HEIGHT)
 	HeaderBar.BackgroundColor3 = Theme.HeaderColor
 	HeaderBar.BorderSizePixel = 0
@@ -176,7 +183,17 @@ function AstralisLib:CreateWindow(config)
 	TitleLabel.ZIndex = 3
 	TitleLabel.Parent = HeaderBar
 
+	-- Dedicated drag zone (leaves right 80px free for buttons)
+	local DragZone = Instance.new("Frame")
+	DragZone.Name = "DragZone"
+	DragZone.Size = UDim2.new(1, -85, 1, 0)
+	DragZone.Position = UDim2.new(0, 0, 0, 0)
+	DragZone.BackgroundTransparency = 1
+	DragZone.ZIndex = 2
+	DragZone.Parent = HeaderBar
+
 	local CloseBtn = Instance.new("TextButton")
+	CloseBtn.Name = "CloseBtn"
 	CloseBtn.Size = UDim2.new(0, 40, 1, 0)
 	CloseBtn.Position = UDim2.new(1, -40, 0, 0)
 	CloseBtn.BackgroundTransparency = 1
@@ -185,12 +202,14 @@ function AstralisLib:CreateWindow(config)
 	CloseBtn.TextSize = 14
 	CloseBtn.TextColor3 = Color3.fromRGB(150, 150, 150)
 	CloseBtn.AutoButtonColor = false
-	CloseBtn.ZIndex = 4
+	CloseBtn.Active = true
+	CloseBtn.ZIndex = 5
 	CloseBtn.Parent = HeaderBar
 
 	noSelect(CloseBtn)
 
 	local MinBtn = Instance.new("TextButton")
+	MinBtn.Name = "MinBtn"
 	MinBtn.Size = UDim2.new(0, 40, 1, 0)
 	MinBtn.Position = UDim2.new(1, -80, 0, 0)
 	MinBtn.BackgroundTransparency = 1
@@ -199,7 +218,8 @@ function AstralisLib:CreateWindow(config)
 	MinBtn.TextSize = 22
 	MinBtn.TextColor3 = Color3.fromRGB(150, 150, 150)
 	MinBtn.AutoButtonColor = false
-	MinBtn.ZIndex = 4
+	MinBtn.Active = true
+	MinBtn.ZIndex = 5
 	MinBtn.Parent = HeaderBar
 
 	noSelect(MinBtn)
@@ -217,26 +237,36 @@ function AstralisLib:CreateWindow(config)
 		TweenService:Create(MinBtn, TweenInfo.new(0.12), {TextColor3 = Color3.fromRGB(150, 150, 150)}):Play()
 	end)
 
-	-- ============ CONFIRM DIALOG (Nested in ScreenGui) ============
+	-- ============ CONFIRM DIALOG OVERLAY ============
 
-	local Dim = Instance.new("Frame")
+	local ConfirmContainer = Instance.new("Frame")
+	ConfirmContainer.Name = "ConfirmContainer"
+	ConfirmContainer.Size = UDim2.new(1, 0, 1, 0)
+	ConfirmContainer.BackgroundTransparency = 1
+	ConfirmContainer.Visible = false
+	ConfirmContainer.ZIndex = 100
+	ConfirmContainer.Parent = ScreenGui
+
+	local Dim = Instance.new("TextButton")
+	Dim.Name = "DimBackground"
 	Dim.Size = UDim2.new(1, 0, 1, 0)
 	Dim.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 	Dim.BackgroundTransparency = 1
 	Dim.BorderSizePixel = 0
-	Dim.ZIndex = 100
-	Dim.Visible = false
-	Dim.Parent = ScreenGui
+	Dim.Text = ""
+	Dim.AutoButtonColor = false
+	Dim.ZIndex = 101
+	Dim.Parent = ConfirmContainer
 
 	local ConfirmGui = Instance.new("Frame")
+	ConfirmGui.Name = "ConfirmBox"
 	ConfirmGui.Size = UDim2.new(0, 320, 0, 140)
 	ConfirmGui.Position = UDim2.new(0.5, 0, 0.5, 0)
 	ConfirmGui.AnchorPoint = Vector2.new(0.5, 0.5)
 	ConfirmGui.BackgroundColor3 = Theme.BackgroundColor
 	ConfirmGui.BorderSizePixel = 0
-	ConfirmGui.ZIndex = 101
-	ConfirmGui.Visible = false
-	ConfirmGui.Parent = ScreenGui
+	ConfirmGui.ZIndex = 102
+	ConfirmGui.Parent = ConfirmContainer
 
 	addCorner(ConfirmGui, 10)
 
@@ -256,7 +286,7 @@ function AstralisLib:CreateWindow(config)
 	ConfirmTitle.TextWrapped = true
 	ConfirmTitle.TextXAlignment = Enum.TextXAlignment.Left
 	ConfirmTitle.TextYAlignment = Enum.TextYAlignment.Center
-	ConfirmTitle.ZIndex = 102
+	ConfirmTitle.ZIndex = 103
 	ConfirmTitle.Parent = ConfirmGui
 
 	local YesBtn = Instance.new("TextButton")
@@ -269,7 +299,8 @@ function AstralisLib:CreateWindow(config)
 	YesBtn.TextSize = 14
 	YesBtn.TextColor3 = Color3.fromRGB(30, 30, 32)
 	YesBtn.AutoButtonColor = false
-	YesBtn.ZIndex = 102
+	YesBtn.Active = true
+	YesBtn.ZIndex = 103
 	YesBtn.Parent = ConfirmGui
 
 	addCorner(YesBtn, 8)
@@ -285,7 +316,8 @@ function AstralisLib:CreateWindow(config)
 	NoBtn.TextSize = 14
 	NoBtn.TextColor3 = Theme.ButtonTextColor
 	NoBtn.AutoButtonColor = false
-	NoBtn.ZIndex = 102
+	NoBtn.Active = true
+	NoBtn.ZIndex = 103
 	NoBtn.Parent = ConfirmGui
 
 	addCorner(NoBtn, 8)
@@ -294,90 +326,124 @@ function AstralisLib:CreateWindow(config)
 	local Blur = Instance.new("BlurEffect")
 	Blur.Size = 0
 	Blur.Enabled = false
-	Blur.Parent = Lighting
+	pcall(function() Blur.Parent = Lighting end)
 
 	YesBtn.MouseEnter:Connect(function()
-		TweenService:Create(YesBtn, TweenInfo.new(0.12), { BackgroundColor3 = Color3.fromRGB(220, 220, 225) }):Play()
+		TweenService:Create(YesBtn, TweenInfo.new(0.12), {
+			BackgroundColor3 = Color3.fromRGB(220, 220, 225)
+		}):Play()
 	end)
 	YesBtn.MouseLeave:Connect(function()
-		TweenService:Create(YesBtn, TweenInfo.new(0.12), { BackgroundColor3 = Theme.AccentColor }):Play()
+		TweenService:Create(YesBtn, TweenInfo.new(0.12), {
+			BackgroundColor3 = Theme.AccentColor
+		}):Play()
 	end)
 
 	NoBtn.MouseEnter:Connect(function()
-		TweenService:Create(NoBtn, TweenInfo.new(0.12), { BackgroundColor3 = Color3.fromRGB(65, 65, 70) }):Play()
+		TweenService:Create(NoBtn, TweenInfo.new(0.12), {
+			BackgroundColor3 = Color3.fromRGB(65, 65, 70)
+		}):Play()
 	end)
 	NoBtn.MouseLeave:Connect(function()
-		TweenService:Create(NoBtn, TweenInfo.new(0.12), { BackgroundColor3 = Theme.ButtonBackground }):Play()
+		TweenService:Create(NoBtn, TweenInfo.new(0.12), {
+			BackgroundColor3 = Theme.ButtonBackground
+		}):Play()
 	end)
 
-	local function openConfirm()
-		Dim.Visible = true
-		ConfirmGui.Visible = true
-		Dim.BackgroundTransparency = 1
+	local isConfirmOpen = false
 
-		TweenService:Create(Dim, TweenInfo.new(0.25), {
+	local function openConfirm()
+		if isConfirmOpen then return end
+		isConfirmOpen = true
+
+		ConfirmContainer.Visible = true
+		Dim.BackgroundTransparency = 1
+		ConfirmGui.Position = UDim2.new(0.5, 0, 0.5, 12)
+
+		TweenService:Create(Dim, TweenInfo.new(0.2), {
 			BackgroundTransparency = 0.5
 		}):Play()
 
-		Blur.Enabled = true
-		Blur.Size = 0
-		TweenService:Create(Blur, TweenInfo.new(0.25), { Size = 14 }):Play()
+		TweenService:Create(ConfirmGui, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			Position = UDim2.new(0.5, 0, 0.5, 0)
+		}):Play()
+
+		pcall(function()
+			Blur.Enabled = true
+			Blur.Size = 0
+			TweenService:Create(Blur, TweenInfo.new(0.2), { Size = 14 }):Play()
+		end)
 	end
 
 	local function closeConfirm()
-		local t = TweenService:Create(Dim, TweenInfo.new(0.2), { BackgroundTransparency = 1 })
-		t:Play()
+		if not isConfirmOpen then return end
+		isConfirmOpen = false
 
-		local b = TweenService:Create(Blur, TweenInfo.new(0.25), { Size = 0 })
-		b:Play()
-		b.Completed:Connect(function()
-			Blur.Enabled = false
+		TweenService:Create(Dim, TweenInfo.new(0.15), { BackgroundTransparency = 1 }):Play()
+		TweenService:Create(ConfirmGui, TweenInfo.new(0.15), {
+			Position = UDim2.new(0.5, 0, 0.5, 12)
+		}):Play()
+
+		pcall(function()
+			local b = TweenService:Create(Blur, TweenInfo.new(0.15), { Size = 0 })
+			b:Play()
+			b.Completed:Connect(function()
+				if not isConfirmOpen then
+					Blur.Enabled = false
+				end
+			end)
 		end)
 
-		task.delay(0.2, function()
-			Dim.Visible = false
-			ConfirmGui.Visible = false
+		task.delay(0.15, function()
+			if not isConfirmOpen then
+				ConfirmContainer.Visible = false
+			end
 		end)
 	end
 
-	NoBtn.Activated:Connect(function()
+	NoBtn.MouseButton1Click:Connect(function()
 		playSound()
 		closeConfirm()
 	end)
 
-	YesBtn.Activated:Connect(function()
+	Dim.MouseButton1Click:Connect(function()
 		playSound()
-		Blur:Destroy()
+		closeConfirm()
+	end)
+
+	YesBtn.MouseButton1Click:Connect(function()
+		playSound()
+		pcall(function() Blur:Destroy() end)
 		ScreenGui:Destroy()
 	end)
 
-	CloseBtn.Activated:Connect(function()
+	CloseBtn.MouseButton1Click:Connect(function()
 		playSound()
 		openConfirm()
 	end)
 
-	-- ============================================================
+	-- ================== DRAGGING SYSTEM ==================
 
 	local dragging = false
 	local dragStart
 	local startPos
 
-	HeaderBar.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+	DragZone.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			dragging = true
 			dragStart = input.Position
 			startPos = Frame.Position
 		end
 	end)
 
-	HeaderBar.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+	DragZone.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			dragging = false
 		end
 	end)
 
 	UserInputService.InputChanged:Connect(function(input)
-		if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
 			local delta = input.Position - dragStart
 			Frame.Position = UDim2.new(
 				startPos.X.Scale, startPos.X.Offset + delta.X,
@@ -422,7 +488,7 @@ function AstralisLib:CreateWindow(config)
 	local uiVisible = true
 	local uiMinimized = false
 
-	MinBtn.Activated:Connect(function()
+	MinBtn.MouseButton1Click:Connect(function()
 		playSound()
 		uiMinimized = not uiMinimized
 
@@ -516,7 +582,7 @@ function AstralisLib:CreateWindow(config)
 			end
 		end
 
-		TabBtn.Activated:Connect(selectTab)
+		TabBtn.MouseButton1Click:Connect(selectTab)
 
 		TabBtn.MouseEnter:Connect(function()
 			if ActiveTabIndex ~= tabIndex then
@@ -624,14 +690,18 @@ function AstralisLib:CreateWindow(config)
 			TitleLbl:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateTogglePosition)
 
 			Hit.MouseEnter:Connect(function()
-				TweenService:Create(TrackStroke, TweenInfo.new(0.12), { Color = Color3.fromRGB(70, 70, 75) }):Play()
+				TweenService:Create(TrackStroke, TweenInfo.new(0.12), {
+					Color = Color3.fromRGB(70, 70, 75)
+				}):Play()
 			end)
 
 			Hit.MouseLeave:Connect(function()
-				TweenService:Create(TrackStroke, TweenInfo.new(0.12), { Color = Theme.StrokeColor }):Play()
+				TweenService:Create(TrackStroke, TweenInfo.new(0.12), {
+					Color = Theme.StrokeColor
+				}):Play()
 			end)
 
-			Hit.Activated:Connect(function()
+			Hit.MouseButton1Click:Connect(function()
 				playSound()
 				state = not state
 
@@ -728,13 +798,17 @@ function AstralisLib:CreateWindow(config)
 
 			Btn.MouseEnter:Connect(function()
 				if not sliding then
-					TweenService:Create(TrackStroke, TweenInfo.new(0.12), { Color = Color3.fromRGB(70, 70, 75) }):Play()
+					TweenService:Create(TrackStroke, TweenInfo.new(0.12), {
+						Color = Color3.fromRGB(70, 70, 75)
+					}):Play()
 				end
 			end)
 
 			Btn.MouseLeave:Connect(function()
 				if not sliding then
-					TweenService:Create(TrackStroke, TweenInfo.new(0.12), { Color = Theme.StrokeColor }):Play()
+					TweenService:Create(TrackStroke, TweenInfo.new(0.12), {
+						Color = Theme.StrokeColor
+					}):Play()
 				end
 			end)
 
@@ -742,7 +816,9 @@ function AstralisLib:CreateWindow(config)
 				if input.UserInputType == Enum.UserInputType.MouseButton1 then
 					sliding = true
 					update(input)
-					TweenService:Create(TrackStroke, TweenInfo.new(0.12), { Color = Theme.AccentColor }):Play()
+					TweenService:Create(TrackStroke, TweenInfo.new(0.12), {
+						Color = Theme.AccentColor
+					}):Play()
 				end
 			end)
 
@@ -750,7 +826,9 @@ function AstralisLib:CreateWindow(config)
 				if input.UserInputType == Enum.UserInputType.MouseButton1 then
 					if sliding then
 						sliding = false
-						TweenService:Create(TrackStroke, TweenInfo.new(0.15), { Color = Theme.StrokeColor }):Play()
+						TweenService:Create(TrackStroke, TweenInfo.new(0.15), {
+							Color = Theme.StrokeColor
+						}):Play()
 					end
 				end
 			end)
@@ -807,16 +885,24 @@ function AstralisLib:CreateWindow(config)
 			Desc.Parent = Holder
 
 			Btn.MouseEnter:Connect(function()
-				TweenService:Create(Btn, TweenInfo.new(0.12), { BackgroundColor3 = Color3.fromRGB(45, 45, 50) }):Play()
-				TweenService:Create(Stroke, TweenInfo.new(0.12), { Color = Color3.fromRGB(70, 70, 75) }):Play()
+				TweenService:Create(Btn, TweenInfo.new(0.12), {
+					BackgroundColor3 = Color3.fromRGB(45, 45, 50)
+				}):Play()
+				TweenService:Create(Stroke, TweenInfo.new(0.12), {
+					Color = Color3.fromRGB(70, 70, 75)
+				}):Play()
 			end)
 
 			Btn.MouseLeave:Connect(function()
-				TweenService:Create(Btn, TweenInfo.new(0.12), { BackgroundColor3 = Theme.ButtonBackground }):Play()
-				TweenService:Create(Stroke, TweenInfo.new(0.12), { Color = Theme.StrokeColor }):Play()
+				TweenService:Create(Btn, TweenInfo.new(0.12), {
+					BackgroundColor3 = Theme.ButtonBackground
+				}):Play()
+				TweenService:Create(Stroke, TweenInfo.new(0.12), {
+					Color = Theme.StrokeColor
+				}):Play()
 			end)
 
-			Btn.Activated:Connect(function()
+			Btn.MouseButton1Click:Connect(function()
 				playSound()
 				callback()
 			end)
@@ -880,16 +966,24 @@ function AstralisLib:CreateWindow(config)
 			Btn.Text = tostring(opts[currentIndex] or "Default")
 
 			Btn.MouseEnter:Connect(function()
-				TweenService:Create(Btn, TweenInfo.new(0.12), { BackgroundColor3 = Color3.fromRGB(45, 45, 50) }):Play()
-				TweenService:Create(Stroke, TweenInfo.new(0.12), { Color = Color3.fromRGB(70, 70, 75) }):Play()
+				TweenService:Create(Btn, TweenInfo.new(0.12), {
+					BackgroundColor3 = Color3.fromRGB(45, 45, 50)
+				}):Play()
+				TweenService:Create(Stroke, TweenInfo.new(0.12), {
+					Color = Color3.fromRGB(70, 70, 75)
+				}):Play()
 			end)
 
 			Btn.MouseLeave:Connect(function()
-				TweenService:Create(Btn, TweenInfo.new(0.12), { BackgroundColor3 = Theme.ButtonBackground }):Play()
-				TweenService:Create(Stroke, TweenInfo.new(0.12), { Color = Theme.StrokeColor }):Play()
+				TweenService:Create(Btn, TweenInfo.new(0.12), {
+					BackgroundColor3 = Theme.ButtonBackground
+				}):Play()
+				TweenService:Create(Stroke, TweenInfo.new(0.12), {
+					Color = Theme.StrokeColor
+				}):Play()
 			end)
 
-			Btn.Activated:Connect(function()
+			Btn.MouseButton1Click:Connect(function()
 				playSound()
 				if type(list) == "function" then opts = list() end
 				if #opts == 0 then return end
@@ -946,22 +1040,30 @@ function AstralisLib:CreateWindow(config)
 
 			Box.MouseEnter:Connect(function()
 				if not Box:IsFocused() then
-					TweenService:Create(Stroke, TweenInfo.new(0.12), { Color = Color3.fromRGB(70, 70, 75) }):Play()
+					TweenService:Create(Stroke, TweenInfo.new(0.12), {
+						Color = Color3.fromRGB(70, 70, 75)
+					}):Play()
 				end
 			end)
 
 			Box.MouseLeave:Connect(function()
 				if not Box:IsFocused() then
-					TweenService:Create(Stroke, TweenInfo.new(0.12), { Color = Theme.StrokeColor }):Play()
+					TweenService:Create(Stroke, TweenInfo.new(0.12), {
+						Color = Theme.StrokeColor
+					}):Play()
 				end
 			end)
 
 			Box.Focused:Connect(function()
-				TweenService:Create(Stroke, TweenInfo.new(0.12), { Color = Theme.AccentColor }):Play()
+				TweenService:Create(Stroke, TweenInfo.new(0.12), {
+					Color = Theme.AccentColor
+				}):Play()
 			end)
 
 			Box.FocusLost:Connect(function()
-				TweenService:Create(Stroke, TweenInfo.new(0.15), { Color = Theme.StrokeColor }):Play()
+				TweenService:Create(Stroke, TweenInfo.new(0.15), {
+					Color = Theme.StrokeColor
+				}):Play()
 				playSound()
 				callback(Box.Text)
 			end)
