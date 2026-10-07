@@ -91,7 +91,6 @@ function AstralisLib:CreateWindow(config)
 		OutlineThickness = config.OutlineThickness or 1.2,
 		CornerRadius = config.CornerRadius or 10,
 
-		-- new: active tab outline
 		TabOutlineColor = config.TabOutlineColor or Color3.fromRGB(255, 255, 255),
 		TabOutlineTransparency = config.TabOutlineTransparency or 0.85,
 		TabOutlineThickness = config.TabOutlineThickness or 1,
@@ -862,17 +861,6 @@ function AstralisLib:CreateWindow(config)
 		TabOutline.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		TabOutline.Parent = TabBtn
 
-		local ActiveBar = Instance.new("Frame")
-		ActiveBar.Size = UDim2.new(0, 3, 0, 0)
-		ActiveBar.Position = UDim2.new(0, 3, 0.5, 0)
-		ActiveBar.AnchorPoint = Vector2.new(0, 0.5)
-		ActiveBar.BackgroundColor3 = Theme.AccentColor
-		ActiveBar.BorderSizePixel = 0
-		ActiveBar.ZIndex = 6
-		ActiveBar.Parent = TabBtn
-
-		addCorner(ActiveBar, 2)
-
 		local Icon = Instance.new("ImageLabel")
 		Icon.Size = UDim2.new(0, 20, 0, 20)
 		Icon.Position = UDim2.new(0.5, -10, 0.5, -10)
@@ -905,7 +893,7 @@ function AstralisLib:CreateWindow(config)
 		Padding.PaddingBottom = UDim.new(0, 20)
 		Padding.Parent = Page
 
-		table.insert(Tabs, { Btn = TabBtn, Icon = Icon, Bar = ActiveBar, Outline = TabOutline })
+		table.insert(Tabs, { Btn = TabBtn, Icon = Icon, Outline = TabOutline })
 		table.insert(Pages, Page)
 
 		local function selectTab()
@@ -922,10 +910,6 @@ function AstralisLib:CreateWindow(config)
 
 				TweenService:Create(Tabs[idx].Icon, TweenInfo.new(0.15), {
 					ImageColor3 = active and Theme.TabActiveTextColor or Theme.TabTextColor
-				}):Play()
-
-				TweenService:Create(Tabs[idx].Bar, TweenInfo.new(0.2), {
-					Size = active and UDim2.new(0, 3, 0.5, 0) or UDim2.new(0, 3, 0, 0)
 				}):Play()
 
 				TweenService:Create(Tabs[idx].Outline, TweenInfo.new(0.2), {
