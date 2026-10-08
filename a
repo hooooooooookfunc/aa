@@ -237,6 +237,7 @@ function AstralisLib:CreateWindow(config)
 	SearchBox.TextSize = 13
 	SearchBox.TextColor3 = Theme.TextColor
 	SearchBox.TextXAlignment = Enum.TextXAlignment.Left
+	SearchBox.TextYAlignment = Enum.TextYAlignment.Center
 	SearchBox.ClearTextOnFocus = false
 	SearchBox.ZIndex = 7
 	SearchBox.Parent = SearchBar
@@ -249,6 +250,8 @@ function AstralisLib:CreateWindow(config)
 	CloseBtn.Font = Enum.Font.Arcade
 	CloseBtn.TextSize = 14
 	CloseBtn.TextColor3 = Color3.fromRGB(150, 150, 150)
+	CloseBtn.TextXAlignment = Enum.TextXAlignment.Center
+	CloseBtn.TextYAlignment = Enum.TextYAlignment.Center
 	CloseBtn.AutoButtonColor = false
 	CloseBtn.Modal = true
 	CloseBtn.ZIndex = 6
@@ -264,6 +267,8 @@ function AstralisLib:CreateWindow(config)
 	MinBtn.Font = Enum.Font.Arcade
 	MinBtn.TextSize = 22
 	MinBtn.TextColor3 = Color3.fromRGB(150, 150, 150)
+	MinBtn.TextXAlignment = Enum.TextXAlignment.Center
+	MinBtn.TextYAlignment = Enum.TextYAlignment.Center
 	MinBtn.AutoButtonColor = false
 	MinBtn.Modal = true
 	MinBtn.ZIndex = 6
@@ -401,6 +406,7 @@ function AstralisLib:CreateWindow(config)
 		TitleLbl.TextSize = 14
 		TitleLbl.TextColor3 = Theme.TextColor
 		TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
+		TitleLbl.TextYAlignment = Enum.TextYAlignment.Center
 		TitleLbl.ZIndex = 6
 		TitleLbl.Parent = Notif
 
@@ -413,6 +419,7 @@ function AstralisLib:CreateWindow(config)
 		TextLbl.TextSize = 12
 		TextLbl.TextColor3 = Theme.DescriptionColor
 		TextLbl.TextXAlignment = Enum.TextXAlignment.Left
+		TextLbl.TextYAlignment = Enum.TextYAlignment.Center
 		TextLbl.ZIndex = 6
 		TextLbl.Parent = Notif
 
@@ -424,6 +431,8 @@ function AstralisLib:CreateWindow(config)
 		CloseIcon.Font = Enum.Font.Arcade
 		CloseIcon.TextSize = 10
 		CloseIcon.TextColor3 = Theme.DescriptionColor
+		CloseIcon.TextXAlignment = Enum.TextXAlignment.Center
+		CloseIcon.TextYAlignment = Enum.TextYAlignment.Center
 		CloseIcon.AutoButtonColor = false
 		CloseIcon.Modal = true
 		CloseIcon.Visible = closeBtnEnabled
@@ -466,6 +475,8 @@ function AstralisLib:CreateWindow(config)
 				Btn.Font = Theme.Font
 				Btn.TextSize = 12
 				Btn.TextColor3 = Theme.ButtonTextColor
+				Btn.TextXAlignment = Enum.TextXAlignment.Center
+				Btn.TextYAlignment = Enum.TextYAlignment.Center
 				Btn.AutoButtonColor = false
 				Btn.Modal = true
 				Btn.LayoutOrder = i
@@ -611,6 +622,8 @@ function AstralisLib:CreateWindow(config)
 	YesBtn.Font = Theme.Font
 	YesBtn.TextSize = 14
 	YesBtn.TextColor3 = Theme.ButtonTextColor
+	YesBtn.TextXAlignment = Enum.TextXAlignment.Center
+	YesBtn.TextYAlignment = Enum.TextYAlignment.Center
 	YesBtn.AutoButtonColor = false
 	YesBtn.Modal = true
 	YesBtn.ZIndex = 3
@@ -628,6 +641,8 @@ function AstralisLib:CreateWindow(config)
 	NoBtn.Font = Theme.Font
 	NoBtn.TextSize = 14
 	NoBtn.TextColor3 = Theme.ButtonTextColor
+	NoBtn.TextXAlignment = Enum.TextXAlignment.Center
+	NoBtn.TextYAlignment = Enum.TextYAlignment.Center
 	NoBtn.AutoButtonColor = false
 	NoBtn.Modal = true
 	NoBtn.ZIndex = 3
@@ -775,6 +790,7 @@ function AstralisLib:CreateWindow(config)
 	TooltipText.TextSize = 12
 	TooltipText.TextColor3 = Theme.TextColor
 	TooltipText.TextXAlignment = Enum.TextXAlignment.Left
+	TooltipText.TextYAlignment = Enum.TextYAlignment.Center
 	TooltipText.ZIndex = 101
 	TooltipText.Parent = Tooltip
 
@@ -975,6 +991,7 @@ function AstralisLib:CreateWindow(config)
 			Label.TextSize = 11
 			Label.TextColor3 = Theme.DescriptionColor
 			Label.TextXAlignment = Enum.TextXAlignment.Left
+			Label.TextYAlignment = Enum.TextYAlignment.Center
 			Label.ZIndex = 4
 			Label.Parent = Holder
 		end
@@ -1002,6 +1019,7 @@ function AstralisLib:CreateWindow(config)
 			TitleLbl.TextSize = 15
 			TitleLbl.TextColor3 = Theme.TextColor
 			TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
+			TitleLbl.TextYAlignment = Enum.TextYAlignment.Center
 			TitleLbl.ZIndex = 4
 			TitleLbl.Parent = Holder
 
@@ -1015,6 +1033,7 @@ function AstralisLib:CreateWindow(config)
 				DescLbl.TextSize = 12
 				DescLbl.TextColor3 = Theme.DescriptionColor
 				DescLbl.TextXAlignment = Enum.TextXAlignment.Left
+				DescLbl.TextYAlignment = Enum.TextYAlignment.Center
 				DescLbl.ZIndex = 4
 				DescLbl.Parent = Holder
 			end
@@ -1092,6 +1111,7 @@ function AstralisLib:CreateWindow(config)
 			TitleLbl.TextSize = 15
 			TitleLbl.TextColor3 = Theme.TextColor
 			TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
+			TitleLbl.TextYAlignment = Enum.TextYAlignment.Center
 			TitleLbl.ZIndex = 4
 			TitleLbl.Parent = Holder
 
@@ -1190,6 +1210,8 @@ function AstralisLib:CreateWindow(config)
 			Btn.Font = Theme.Font
 			Btn.TextSize = 14
 			Btn.TextColor3 = Theme.ButtonTextColor
+			Btn.TextXAlignment = Enum.TextXAlignment.Center
+			Btn.TextYAlignment = Enum.TextYAlignment.Center
 			Btn.AutoButtonColor = false
 			Btn.Modal = true
 			Btn.ZIndex = 4
@@ -1208,6 +1230,7 @@ function AstralisLib:CreateWindow(config)
 				Desc.TextSize = 12
 				Desc.TextColor3 = Theme.DescriptionColor
 				Desc.TextXAlignment = Enum.TextXAlignment.Left
+				Desc.TextYAlignment = Enum.TextYAlignment.Center
 				Desc.ZIndex = 4
 				Desc.Parent = Holder
 			end
@@ -1251,6 +1274,7 @@ function AstralisLib:CreateWindow(config)
 			TitleLbl.TextSize = 15
 			TitleLbl.TextColor3 = Theme.TextColor
 			TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
+			TitleLbl.TextYAlignment = Enum.TextYAlignment.Center
 			TitleLbl.ZIndex = 4
 			TitleLbl.Parent = Holder
 
@@ -1263,6 +1287,8 @@ function AstralisLib:CreateWindow(config)
 			Btn.Font = Theme.Font
 			Btn.TextSize = 13
 			Btn.TextColor3 = Theme.ButtonTextColor
+			Btn.TextXAlignment = Enum.TextXAlignment.Center
+			Btn.TextYAlignment = Enum.TextYAlignment.Center
 			Btn.AutoButtonColor = false
 			Btn.Modal = true
 			Btn.ZIndex = 4
@@ -1328,6 +1354,7 @@ function AstralisLib:CreateWindow(config)
 			TitleLbl.TextSize = 15
 			TitleLbl.TextColor3 = Theme.TextColor
 			TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
+			TitleLbl.TextYAlignment = Enum.TextYAlignment.Center
 			TitleLbl.Parent = Holder
 
 			local Box = Instance.new("TextBox")
@@ -1339,6 +1366,8 @@ function AstralisLib:CreateWindow(config)
 			Box.Font = Theme.Font
 			Box.TextSize = 13
 			Box.TextColor3 = Theme.ButtonTextColor
+			Box.TextXAlignment = Enum.TextXAlignment.Center
+			Box.TextYAlignment = Enum.TextYAlignment.Center
 			Box.Text = tostring(default)
 			Box.ClearTextOnFocus = false
 			Box.Parent = Holder
@@ -1375,6 +1404,7 @@ function AstralisLib:CreateWindow(config)
 			TitleLbl.TextSize = 15
 			TitleLbl.TextColor3 = Theme.TextColor
 			TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
+			TitleLbl.TextYAlignment = Enum.TextYAlignment.Center
 			TitleLbl.ZIndex = 4
 			TitleLbl.Parent = Holder
 
@@ -1388,6 +1418,7 @@ function AstralisLib:CreateWindow(config)
 				DescLbl.TextSize = 12
 				DescLbl.TextColor3 = Theme.DescriptionColor
 				DescLbl.TextXAlignment = Enum.TextXAlignment.Left
+				DescLbl.TextYAlignment = Enum.TextYAlignment.Center
 				DescLbl.ZIndex = 4
 				DescLbl.Parent = Holder
 			end
@@ -1533,8 +1564,9 @@ function AstralisLib:CreateWindow(config)
 			HexBox.Font = Theme.Font
 			HexBox.TextSize = 12
 			HexBox.TextColor3 = Theme.TextColor
-			HexBox.ClearTextOnFocus = false
 			HexBox.TextXAlignment = Enum.TextXAlignment.Left
+			HexBox.TextYAlignment = Enum.TextYAlignment.Center
+			HexBox.ClearTextOnFocus = false
 			HexBox.ZIndex = 21
 			HexBox.Parent = Popup
 
@@ -1553,6 +1585,8 @@ function AstralisLib:CreateWindow(config)
 			ResetBtn.Font = Theme.Font
 			ResetBtn.TextSize = 12
 			ResetBtn.TextColor3 = Theme.ButtonTextColor
+			ResetBtn.TextXAlignment = Enum.TextXAlignment.Center
+			ResetBtn.TextYAlignment = Enum.TextYAlignment.Center
 			ResetBtn.AutoButtonColor = false
 			ResetBtn.Modal = true
 			ResetBtn.ZIndex = 21
