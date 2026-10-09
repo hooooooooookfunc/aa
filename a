@@ -8,6 +8,8 @@ local CoreGui = game:GetService("CoreGui")
 local SoundService = game:GetService("SoundService")
 local Lighting = game:GetService("Lighting")
 
+local IsMobile = UserInputService.TouchEnabled and not (UserInputService.KeyboardEnabled and UserInputService.MouseEnabled)
+
 local function addCorner(obj, r)
 	local c = Instance.new("UICorner")
 	c.CornerRadius = UDim.new(0, r or 4)
@@ -100,8 +102,10 @@ function AstralisLib:CreateWindow(config)
 		Theme.SoundEnabled = config.SoundEnabled
 	end
 
-	local DEFAULT_SIZE = Vector2.new(760, 450)
-	local FULL_SIZE = config.Size or UDim2.new(0, DEFAULT_SIZE.X, 0, DEFAULT_SIZE.Y)
+	-- Window Sizes (PC vs Mobile)
+	local PC_SIZE = config.Size or UDim2.new(0, 760, 0, 450)
+	local MOBILE_SIZE = config.MobileSize or UDim2.new(0, 500, 0, 500)
+	local FULL_SIZE = IsMobile and MOBILE_SIZE or PC_SIZE
 
 	local MINI_HEIGHT = 56
 	local HEADER_HEIGHT = config.HeaderHeight or 40
@@ -140,21 +144,6 @@ function AstralisLib:CreateWindow(config)
 	Frame.Parent = ScreenGui
 
 	addCorner(Frame, Theme.CornerRadius)
-
-	-- Mobile Responsive Auto-Scaling
-	local function updateScale()
-		local viewport = ScreenGui.AbsoluteSize
-		if viewport.X < DEFAULT_SIZE.X or viewport.Y < DEFAULT_SIZE.Y then
-			local scaleX = viewport.X / (DEFAULT_SIZE.X + 20)
-			local scaleY = viewport.Y / (DEFAULT_SIZE.Y + 20)
-			local scale = math.min(scaleX, scaleY, 1)
-			Frame.Size = UDim2.new(0, DEFAULT_SIZE.X * scale, 0, DEFAULT_SIZE.Y * scale)
-		else
-			Frame.Size = FULL_SIZE
-		end
-	end
-	ScreenGui:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateScale)
-	task.spawn(updateScale)
 
 	local FrameStroke = Instance.new("UIStroke")
 	FrameStroke.Color = Theme.OutlineColor
@@ -211,7 +200,7 @@ function AstralisLib:CreateWindow(config)
 	HeaderDivider.Parent = HeaderBar
 
 	local TitleLabel = Instance.new("TextLabel")
-	TitleLabel.Size = UDim2.new(0, 150, 1, 0)
+	TitleLabel.Size = UDim2.new(0, 130, 1, 0)
 	TitleLabel.Position = UDim2.new(0, 15, 0, 0)
 	TitleLabel.BackgroundTransparency = 1
 	TitleLabel.Text = Theme.Name
@@ -224,8 +213,8 @@ function AstralisLib:CreateWindow(config)
 	TitleLabel.Parent = HeaderBar
 
 	local SearchBar = Instance.new("Frame")
-	SearchBar.Size = UDim2.new(0, 200, 0, 26)
-	SearchBar.Position = UDim2.new(0.5, -100, 0.5, -13)
+	SearchBar.Size = UDim2.new(0, IsMobile and 140 or 200, 0, 26)
+	SearchBar.Position = UDim2.new(0.5, IsMobile and -70 or -100, 0.5, -13)
 	SearchBar.BackgroundColor3 = Color3.fromRGB(32, 32, 36)
 	SearchBar.BorderSizePixel = 0
 	SearchBar.ZIndex = 6
@@ -744,7 +733,7 @@ function AstralisLib:CreateWindow(config)
 		openConfirm()
 	end)
 
-	-- Mobile-Friendly Draggable Logic
+	-- Mobile and PC Friendly Dragging
 	local dragging = false
 	local dragStart
 	local startPos
@@ -1187,7 +1176,6 @@ function AstralisLib:CreateWindow(config)
 				callback(val)
 			end
 
-			-- Touch and Mouse Input support for Mobile
 			Btn.InputBegan:Connect(function(input)
 				if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 					sliding = true
