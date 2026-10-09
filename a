@@ -100,7 +100,8 @@ function AstralisLib:CreateWindow(config)
 		Theme.SoundEnabled = config.SoundEnabled
 	end
 
-	local FULL_SIZE = config.Size or UDim2.new(0, 760, 0, 450)
+	local DEFAULT_SIZE = Vector2.new(760, 450)
+	local FULL_SIZE = config.Size or UDim2.new(0, DEFAULT_SIZE.X, 0, DEFAULT_SIZE.Y)
 
 	local MINI_HEIGHT = 56
 	local HEADER_HEIGHT = config.HeaderHeight or 40
@@ -139,6 +140,21 @@ function AstralisLib:CreateWindow(config)
 	Frame.Parent = ScreenGui
 
 	addCorner(Frame, Theme.CornerRadius)
+
+	-- Mobile Responsive Auto-Scaling
+	local function updateScale()
+		local viewport = ScreenGui.AbsoluteSize
+		if viewport.X < DEFAULT_SIZE.X or viewport.Y < DEFAULT_SIZE.Y then
+			local scaleX = viewport.X / (DEFAULT_SIZE.X + 20)
+			local scaleY = viewport.Y / (DEFAULT_SIZE.Y + 20)
+			local scale = math.min(scaleX, scaleY, 1)
+			Frame.Size = UDim2.new(0, DEFAULT_SIZE.X * scale, 0, DEFAULT_SIZE.Y * scale)
+		else
+			Frame.Size = FULL_SIZE
+		end
+	end
+	ScreenGui:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateScale)
+	task.spawn(updateScale)
 
 	local FrameStroke = Instance.new("UIStroke")
 	FrameStroke.Color = Theme.OutlineColor
@@ -728,12 +744,13 @@ function AstralisLib:CreateWindow(config)
 		openConfirm()
 	end)
 
+	-- Mobile-Friendly Draggable Logic
 	local dragging = false
 	local dragStart
 	local startPos
 
 	HeaderBar.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			dragging = true
 			dragStart = input.Position
 			startPos = Frame.Position
@@ -741,13 +758,13 @@ function AstralisLib:CreateWindow(config)
 	end)
 
 	HeaderBar.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			dragging = false
 		end
 	end)
 
 	UserInputService.InputChanged:Connect(function(input)
-		if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
 			local delta = input.Position - dragStart
 			Frame.Position = UDim2.new(
 				startPos.X.Scale, startPos.X.Offset + delta.X,
@@ -1170,21 +1187,22 @@ function AstralisLib:CreateWindow(config)
 				callback(val)
 			end
 
+			-- Touch and Mouse Input support for Mobile
 			Btn.InputBegan:Connect(function(input)
-				if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 					sliding = true
 					update(input)
 				end
 			end)
 
 			UserInputService.InputEnded:Connect(function(input)
-				if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 					sliding = false
 				end
 			end)
 
 			UserInputService.InputChanged:Connect(function(input)
-				if sliding and input.UserInputType == Enum.UserInputType.MouseMovement then
+				if sliding and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
 					update(input)
 				end
 			end)
