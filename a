@@ -142,7 +142,6 @@ function AstralisLib:CreateWindow(config)
 
 	addCorner(Frame, Theme.CornerRadius)
 
-	-- Dynamic UIScale to make window automatically fit ANY mobile/tablet screen size perfectly
 	local FrameScale = Instance.new("UIScale")
 	FrameScale.Parent = Frame
 
@@ -751,7 +750,6 @@ function AstralisLib:CreateWindow(config)
 		openConfirm()
 	end)
 
-	-- Mobile-Correct Dragging Math (Accounts for UIScale)
 	local dragging = false
 	local dragStart
 	local startPos
@@ -860,29 +858,40 @@ function AstralisLib:CreateWindow(config)
 		end
 	end)
 
-	-- Mobile-Optimized Floating Toggle Button
-	local FloatingBtn = Instance.new("ImageButton")
+	-- Floating Circular Toggle Button for Mobile/PC
+	local FloatingBtn = Instance.new("TextButton")
 	FloatingBtn.Name = "AstralisToggleBtn"
 	FloatingBtn.Size = UDim2.new(0, 48, 0, 48)
-	FloatingBtn.Position = UDim2.new(0.05, 0, 0.15, 0) -- Upper left corner, clear of standard Roblox buttons
+	FloatingBtn.Position = UDim2.new(0.05, 0, 0.15, 0)
 	FloatingBtn.BackgroundColor3 = Theme.HeaderColor
 	FloatingBtn.BorderSizePixel = 0
-	FloatingBtn.Image = "rbxassetid://98099237136012"
-	FloatingBtn.ImageColor3 = Theme.AccentColor
+	FloatingBtn.Text = ""
+	FloatingBtn.AutoButtonColor = false
 	FloatingBtn.ZIndex = 1000000
 	FloatingBtn.Active = true
-	FloatingBtn.Draggable = false -- Managed via custom input system below
 	FloatingBtn.Parent = ScreenGui
 
-	addCorner(FloatingBtn, 24) -- Makes button a perfect circle
+	addCorner(FloatingBtn, 24)
 	noSelect(FloatingBtn)
 
 	local FloatingStroke = Instance.new("UIStroke")
-	FloatingStroke.Color = Color3.fromRGB(255, 255, 255)
+	FloatingStroke.Color = Theme.OutlineColor
 	FloatingStroke.Thickness = Theme.OutlineThickness
 	FloatingStroke.Parent = FloatingBtn
 
-	-- Draggable Physics for the Floating Button (with UIScale Compensation)
+	-- Original White Logo (Untinted)
+	local FloatingIcon = Instance.new("ImageLabel")
+	FloatingIcon.Size = UDim2.new(0, 26, 0, 26)
+	FloatingIcon.Position = UDim2.new(0.5, 0, 0.5, 0)
+	FloatingIcon.AnchorPoint = Vector2.new(0.5, 0.5)
+	FloatingIcon.BackgroundTransparency = 1
+	FloatingIcon.Image = "rbxassetid://98099237136012"
+	FloatingIcon.ImageColor3 = Color3.fromRGB(255, 255, 255) -- Pure white, preserves natural texture
+	FloatingIcon.ScaleType = Enum.ScaleType.Fit
+	FloatingIcon.ZIndex = 1000001
+	FloatingIcon.Parent = FloatingBtn
+
+	-- Draggable Physics for the Floating Button
 	local fDragging = false
 	local fDragStart
 	local fStartPos
@@ -921,14 +930,12 @@ function AstralisLib:CreateWindow(config)
 		Frame.Visible = uiVisible
 	end
 
-	-- Only trigger toggle on click if the button wasn't actively being dragged
 	FloatingBtn.MouseButton1Click:Connect(function()
 		if dragDistance < dragThreshold then
 			toggleUI()
 		end
 	end)
 
-	-- Hover effects on Mobile/PC for Floating Button
 	FloatingBtn.MouseEnter:Connect(function()
 		TweenService:Create(FloatingBtn, TweenInfo.new(0.12), {
 			BackgroundColor3 = Theme.TabSelectedColor
@@ -941,7 +948,6 @@ function AstralisLib:CreateWindow(config)
 		}):Play()
 	end)
 
-	-- Keybind listeners (Toggles visibility of Frame, keeping Floating button visible)
 	UserInputService.InputBegan:Connect(function(input)
 		if UserInputService:GetFocusedTextBox() then return end
 		if input.KeyCode == Theme.Keybind then
@@ -994,7 +1000,7 @@ function AstralisLib:CreateWindow(config)
 		Page.Size = UDim2.new(1, 0, 1, 0)
 		Page.BackgroundTransparency = 1
 		Page.BorderSizePixel = 0
-		Page.ScrollBarThickness = 5 -- Comfort thickness for touch screens
+		Page.ScrollBarThickness = 5
 		Page.ScrollBarImageColor3 = Theme.ButtonBackground
 		Page.AutomaticCanvasSize = Enum.AutomaticSize.Y
 		Page.Visible = false
