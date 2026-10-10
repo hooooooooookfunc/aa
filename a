@@ -858,40 +858,23 @@ function AstralisLib:CreateWindow(config)
 		end
 	end)
 
-	-- Floating Circular Toggle Button for Mobile/PC
-	local FloatingBtn = Instance.new("TextButton")
+	-- Image-Only Transparent Floating Toggle Button for Mobile/PC
+	local FloatingBtn = Instance.new("ImageButton")
 	FloatingBtn.Name = "AstralisToggleBtn"
-	FloatingBtn.Size = UDim2.new(0, 48, 0, 48)
+	FloatingBtn.Size = UDim2.new(0, 44, 0, 44)
 	FloatingBtn.Position = UDim2.new(0.05, 0, 0.15, 0)
-	FloatingBtn.BackgroundColor3 = Theme.HeaderColor
+	FloatingBtn.BackgroundTransparency = 1
 	FloatingBtn.BorderSizePixel = 0
-	FloatingBtn.Text = ""
-	FloatingBtn.AutoButtonColor = false
+	FloatingBtn.Image = "rbxassetid://98099237136012"
+	FloatingBtn.ImageColor3 = Color3.fromRGB(255, 255, 255)
+	FloatingBtn.ScaleType = Enum.ScaleType.Fit
 	FloatingBtn.ZIndex = 1000000
 	FloatingBtn.Active = true
 	FloatingBtn.Parent = ScreenGui
 
-	addCorner(FloatingBtn, 24)
 	noSelect(FloatingBtn)
 
-	local FloatingStroke = Instance.new("UIStroke")
-	FloatingStroke.Color = Theme.OutlineColor
-	FloatingStroke.Thickness = Theme.OutlineThickness
-	FloatingStroke.Parent = FloatingBtn
-
-	-- Original White Logo (Untinted)
-	local FloatingIcon = Instance.new("ImageLabel")
-	FloatingIcon.Size = UDim2.new(0, 26, 0, 26)
-	FloatingIcon.Position = UDim2.new(0.5, 0, 0.5, 0)
-	FloatingIcon.AnchorPoint = Vector2.new(0.5, 0.5)
-	FloatingIcon.BackgroundTransparency = 1
-	FloatingIcon.Image = "rbxassetid://98099237136012"
-	FloatingIcon.ImageColor3 = Color3.fromRGB(255, 255, 255) -- Pure white, preserves natural texture
-	FloatingIcon.ScaleType = Enum.ScaleType.Fit
-	FloatingIcon.ZIndex = 1000001
-	FloatingIcon.Parent = FloatingBtn
-
-	-- Draggable Physics for the Floating Button
+	-- Draggable Physics for Floating Icon
 	local fDragging = false
 	local fDragStart
 	local fStartPos
@@ -938,13 +921,13 @@ function AstralisLib:CreateWindow(config)
 
 	FloatingBtn.MouseEnter:Connect(function()
 		TweenService:Create(FloatingBtn, TweenInfo.new(0.12), {
-			BackgroundColor3 = Theme.TabSelectedColor
+			ImageTransparency = 0.25
 		}):Play()
 	end)
 
 	FloatingBtn.MouseLeave:Connect(function()
 		TweenService:Create(FloatingBtn, TweenInfo.new(0.12), {
-			BackgroundColor3 = Theme.HeaderColor
+			ImageTransparency = 0
 		}):Play()
 	end)
 
