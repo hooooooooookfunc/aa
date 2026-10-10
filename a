@@ -860,12 +860,92 @@ function AstralisLib:CreateWindow(config)
 		end
 	end)
 
+	-- Mobile-Optimized Floating Toggle Button
+	local FloatingBtn = Instance.new("ImageButton")
+	FloatingBtn.Name = "AstralisToggleBtn"
+	FloatingBtn.Size = UDim2.new(0, 48, 0, 48)
+	FloatingBtn.Position = UDim2.new(0.05, 0, 0.15, 0) -- Upper left corner, clear of standard Roblox buttons
+	FloatingBtn.BackgroundColor3 = Theme.HeaderColor
+	FloatingBtn.BorderSizePixel = 0
+	FloatingBtn.Image = "rbxassetid://98099237136012"
+	FloatingBtn.ImageColor3 = Theme.AccentColor
+	FloatingBtn.ZIndex = 1000000
+	FloatingBtn.Active = true
+	FloatingBtn.Draggable = false -- Managed via custom input system below
+	FloatingBtn.Parent = ScreenGui
+
+	addCorner(FloatingBtn, 24) -- Makes button a perfect circle
+	noSelect(FloatingBtn)
+
+	local FloatingStroke = Instance.new("UIStroke")
+	FloatingStroke.Color = Theme.OutlineColor
+	FloatingStroke.Thickness = Theme.OutlineThickness
+	FloatingStroke.Parent = FloatingBtn
+
+	-- Draggable Physics for the Floating Button (with UIScale Compensation)
+	local fDragging = false
+	local fDragStart
+	local fStartPos
+	local dragThreshold = 8
+	local dragDistance = 0
+
+	FloatingBtn.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			fDragging = true
+			fDragStart = input.Position
+			fStartPos = FloatingBtn.Position
+			dragDistance = 0
+		end
+	end)
+
+	FloatingBtn.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			fDragging = false
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(input)
+		if fDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+			local delta = input.Position - fDragStart
+			dragDistance = delta.Magnitude
+			FloatingBtn.Position = UDim2.new(
+				fStartPos.X.Scale, fStartPos.X.Offset + delta.X,
+				fStartPos.Y.Scale, fStartPos.Y.Offset + delta.Y
+			)
+		end
+	end)
+
+	local function toggleUI()
+		playSound()
+		uiVisible = not uiVisible
+		Frame.Visible = uiVisible
+	end
+
+	-- Only trigger toggle on click if the button wasn't actively being dragged
+	FloatingBtn.MouseButton1Click:Connect(function()
+		if dragDistance < dragThreshold then
+			toggleUI()
+		end
+	end)
+
+	-- Hover effects on Mobile/PC for Floating Button
+	FloatingBtn.MouseEnter:Connect(function()
+		TweenService:Create(FloatingBtn, TweenInfo.new(0.12), {
+			BackgroundColor3 = Theme.TabSelectedColor
+		}):Play()
+	end)
+
+	FloatingBtn.MouseLeave:Connect(function()
+		TweenService:Create(FloatingBtn, TweenInfo.new(0.12), {
+			BackgroundColor3 = Theme.HeaderColor
+		}):Play()
+	end)
+
+	-- Keybind listeners (Toggles visibility of Frame, keeping Floating button visible)
 	UserInputService.InputBegan:Connect(function(input)
 		if UserInputService:GetFocusedTextBox() then return end
 		if input.KeyCode == Theme.Keybind then
-			uiVisible = not uiVisible
-			ScreenGui.Enabled = uiVisible
-			playSound()
+			toggleUI()
 		end
 	end)
 
@@ -914,7 +994,7 @@ function AstralisLib:CreateWindow(config)
 		Page.Size = UDim2.new(1, 0, 1, 0)
 		Page.BackgroundTransparency = 1
 		Page.BorderSizePixel = 0
-		Page.ScrollBarThickness = 4
+		Page.ScrollBarThickness = 5 -- Comfort thickness for touch screens
 		Page.ScrollBarImageColor3 = Theme.ButtonBackground
 		Page.AutomaticCanvasSize = Enum.AutomaticSize.Y
 		Page.Visible = false
