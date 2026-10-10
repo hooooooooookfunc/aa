@@ -878,7 +878,7 @@ function AstralisLib:CreateWindow(config)
 	noSelect(FloatingBtn)
 
 	local FloatingStroke = Instance.new("UIStroke")
-	FloatingStroke.Color = Theme.OutlineColor
+	FloatingStroke.Color = Color3.fromRGB(255, 255, 255)
 	FloatingStroke.Thickness = Theme.OutlineThickness
 	FloatingStroke.Parent = FloatingBtn
 
