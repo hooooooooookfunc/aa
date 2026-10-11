@@ -55,8 +55,7 @@ function AstralisLib:CreateWindow(config)
 	local Theme = {
 		Name = config.Name or "ASTRALIS",
 		Subtitle = config.Subtitle or "V2.3",
-		Keybind = config.Keybind or Enum.KeyCode.RightShift,
-
+		Keybind = config.Keybind or Enum.KeyCode.RightControl,
 		SoundEnabled = true,
 		Font = config.Font or Enum.Font.Gotham,
 		TitleFont = config.TitleFont or Enum.Font.GothamMedium,
@@ -154,35 +153,19 @@ function AstralisLib:CreateWindow(config)
 
 	addCorner(Frame, Theme.CornerRadius)
 
-	-- Single isolated Shiftlock controller
-	local ModalUnlocker = Instance.new("TextButton")
-	ModalUnlocker.Name = "AstralisModalUnlocker"
-	ModalUnlocker.Size = UDim2.new(0, 0, 0, 0)
-	ModalUnlocker.BackgroundTransparency = 1
-	ModalUnlocker.Text = ""
-	ModalUnlocker.Modal = true
-	ModalUnlocker.Visible = true
-	ModalUnlocker.Parent = Frame
-	noSelect(ModalUnlocker)
+
 
 	local uiVisible = true
 	local uiMinimized = false
 
-	-- Fully synchronized shiftlock protection system
-	local function setUIShowing(state)
-		uiVisible = state
-		if state then
-			MainGui.Enabled = true
-			Frame.Visible = true
-			ModalUnlocker.Modal = (not uiMinimized)
-		else
-			ModalUnlocker.Modal = false
-			-- Yield 1 frame so the Roblox camera scripts safely registers the lock state release
-			RunService.RenderStepped:Wait()
-			Frame.Visible = false
-			MainGui.Enabled = false
-		end
-	end
+local uiVisible = true
+local uiMinimized = false
+
+local function setUIShowing(state)
+	uiVisible = state
+	MainGui.Enabled = state
+	Frame.Visible = state
+end
 
 	local FrameScale = Instance.new("UIScale")
 	FrameScale.Parent = Frame
@@ -655,15 +638,6 @@ function AstralisLib:CreateWindow(config)
 
 	addCorner(ConfirmGui, 10)
 
-	-- Safe confirmation modal unlocker
-	local ConfirmModal = Instance.new("TextButton")
-	ConfirmModal.Size = UDim2.new(0, 0, 0, 0)
-	ConfirmModal.BackgroundTransparency = 1
-	ConfirmModal.Text = ""
-	ConfirmModal.Modal = false
-	ConfirmModal.Visible = true
-	ConfirmModal.Parent = ConfirmGui
-	noSelect(ConfirmModal)
 
 	local ConfirmStroke = Instance.new("UIStroke")
 	ConfirmStroke.Color = Theme.OutlineColor
