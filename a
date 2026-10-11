@@ -7,6 +7,7 @@ local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 local SoundService = game:GetService("SoundService")
 local Lighting = game:GetService("Lighting")
+local RunService = game:GetService("RunService")
 
 local function addCorner(obj, r)
 	local c = Instance.new("UICorner")
@@ -123,14 +124,25 @@ function AstralisLib:CreateWindow(config)
 		end)
 	end
 
-	local ScreenGui = Instance.new("ScreenGui")
-	ScreenGui.Name = "AstralisLibraryGui"
-	ScreenGui.ResetOnSpawn = false
-	ScreenGui.DisplayOrder = 2147483646
-	ScreenGui.IgnoreGuiInset = true
+	-- Master GUI Container for Menu Elements (Allows absolute shiftlock control)
+	local MainGui = Instance.new("ScreenGui")
+	MainGui.Name = "AstralisMainGui"
+	MainGui.ResetOnSpawn = false
+	MainGui.DisplayOrder = 2147483646
+	MainGui.IgnoreGuiInset = true
 
-	pcall(function() ScreenGui.Parent = CoreGui end)
-	if not ScreenGui.Parent then ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
+	pcall(function() MainGui.Parent = CoreGui end)
+	if not MainGui.Parent then MainGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
+
+	-- Dedicated GUI for Toggle Buttons (Ensures floating icon stays interactive)
+	local ToggleGui = Instance.new("ScreenGui")
+	ToggleGui.Name = "AstralisToggleGui"
+	ToggleGui.ResetOnSpawn = false
+	ToggleGui.DisplayOrder = 2147483648
+	ToggleGui.IgnoreGuiInset = true
+
+	pcall(function() ToggleGui.Parent = CoreGui end)
+	if not ToggleGui.Parent then ToggleGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
 
 	local Frame = Instance.new("CanvasGroup")
 	Frame.Size = FULL_SIZE
@@ -138,11 +150,11 @@ function AstralisLib:CreateWindow(config)
 	Frame.AnchorPoint = Vector2.new(0.5, 0.5)
 	Frame.BackgroundColor3 = Theme.BackgroundColor
 	Frame.BorderSizePixel = 0
-	Frame.Parent = ScreenGui
+	Frame.Parent = MainGui
 
 	addCorner(Frame, Theme.CornerRadius)
 
-	-- Centralized dynamic shiftlock override controller
+	-- Single isolated Shiftlock controller
 	local ModalUnlocker = Instance.new("TextButton")
 	ModalUnlocker.Name = "AstralisModalUnlocker"
 	ModalUnlocker.Size = UDim2.new(0, 0, 0, 0)
@@ -156,16 +168,27 @@ function AstralisLib:CreateWindow(config)
 	local uiVisible = true
 	local uiMinimized = false
 
-	local function updateModalState()
-		-- Shiftlock unlocks ONLY when the main frame is visible and not minimized
-		ModalUnlocker.Modal = (uiVisible and not uiMinimized)
+	-- Fully synchronized shiftlock protection system
+	local function setUIShowing(state)
+		uiVisible = state
+		if state then
+			MainGui.Enabled = true
+			Frame.Visible = true
+			ModalUnlocker.Modal = (not uiMinimized)
+		else
+			ModalUnlocker.Modal = false
+			-- Yield 1 frame so the Roblox camera scripts safely registers the lock state release
+			RunService.RenderStepped:Wait()
+			Frame.Visible = false
+			MainGui.Enabled = false
+		end
 	end
 
 	local FrameScale = Instance.new("UIScale")
 	FrameScale.Parent = Frame
 
 	local function updateScale()
-		local viewport = ScreenGui.AbsoluteSize
+		local viewport = MainGui.AbsoluteSize
 		if viewport.X > 0 and viewport.Y > 0 then
 			local maxWidth = viewport.X * 0.90
 			local maxHeight = viewport.Y * 0.88
@@ -178,7 +201,7 @@ function AstralisLib:CreateWindow(config)
 		end
 	end
 
-	ScreenGui:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateScale)
+	MainGui:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateScale)
 	task.spawn(updateScale)
 
 	local FrameStroke = Instance.new("UIStroke")
@@ -606,6 +629,7 @@ function AstralisLib:CreateWindow(config)
 	ConfirmScreen.ResetOnSpawn = false
 	ConfirmScreen.DisplayOrder = 2147483645
 	ConfirmScreen.IgnoreGuiInset = true
+	ConfirmScreen.Enabled = false
 
 	pcall(function() ConfirmScreen.Parent = CoreGui end)
 	if not ConfirmScreen.Parent then ConfirmScreen.Parent = LocalPlayer:WaitForChild("PlayerGui") end
@@ -631,12 +655,12 @@ function AstralisLib:CreateWindow(config)
 
 	addCorner(ConfirmGui, 10)
 
-	-- Safe modal unlocker isolated specifically for the confirm window popup
+	-- Safe confirmation modal unlocker
 	local ConfirmModal = Instance.new("TextButton")
 	ConfirmModal.Size = UDim2.new(0, 0, 0, 0)
 	ConfirmModal.BackgroundTransparency = 1
 	ConfirmModal.Text = ""
-	ConfirmModal.Modal = false -- Managed dynamically
+	ConfirmModal.Modal = false
 	ConfirmModal.Visible = true
 	ConfirmModal.Parent = ConfirmGui
 	noSelect(ConfirmModal)
@@ -724,7 +748,8 @@ function AstralisLib:CreateWindow(config)
 	end)
 
 	local function openConfirm()
-		ConfirmModal.Modal = true -- Forcefully override shiftlock
+		ConfirmModal.Modal = true
+		ConfirmScreen.Enabled = true
 		Dim.Visible = true
 		ConfirmGui.Visible = true
 		Dim.BackgroundTransparency = 1
@@ -739,7 +764,9 @@ function AstralisLib:CreateWindow(config)
 	end
 
 	local function closeConfirm()
-		ConfirmModal.Modal = false -- Immediately return camera capture lock
+		ConfirmModal.Modal = false
+		RunService.RenderStepped:Wait() -- Force layout pass
+		
 		local t = TweenService:Create(Dim, TweenInfo.new(0.2), { BackgroundTransparency = 1 })
 		t:Play()
 
@@ -752,6 +779,7 @@ function AstralisLib:CreateWindow(config)
 		t.Completed:Connect(function()
 			Dim.Visible = false
 			ConfirmGui.Visible = false
+			ConfirmScreen.Enabled = false
 		end)
 	end
 
@@ -764,11 +792,13 @@ function AstralisLib:CreateWindow(config)
 		playSound()
 		ConfirmModal.Modal = false
 		ModalUnlocker.Modal = false
+		RunService.RenderStepped:Wait()
 		Blur:Destroy()
 		ConfirmScreen:Destroy()
 		NotifyScreen:Destroy()
 		task.defer(function()
-			ScreenGui:Destroy()
+			MainGui:Destroy()
+			ToggleGui:Destroy()
 		end)
 	end)
 
@@ -875,15 +905,16 @@ function AstralisLib:CreateWindow(config)
 			Frame.Size = UDim2.new(FULL_SIZE.X.Scale, FULL_SIZE.X.Offset, 0, MINI_HEIGHT)
 			Body.Visible = false
 			MinBtn.Text = "+"
+			ModalUnlocker.Modal = false
 		else
 			Frame.Size = FULL_SIZE
 			Body.Visible = true
 			MinBtn.Text = "–"
+			ModalUnlocker.Modal = true
 		end
-		updateModalState() -- Safely toggles modal off/on
 	end)
 
-	-- Image-Only Transparent Floating Toggle Button for Mobile/PC
+	-- Float toggle button parented safely outside MainGui to avoid input locking
 	local FloatingBtn = Instance.new("ImageButton")
 	FloatingBtn.Name = "AstralisToggleBtn"
 	FloatingBtn.Size = UDim2.new(0, 44, 0, 44)
@@ -895,11 +926,10 @@ function AstralisLib:CreateWindow(config)
 	FloatingBtn.ScaleType = Enum.ScaleType.Fit
 	FloatingBtn.ZIndex = 1000000
 	FloatingBtn.Active = true
-	FloatingBtn.Parent = ScreenGui
+	FloatingBtn.Parent = ToggleGui
 
 	noSelect(FloatingBtn)
 
-	-- Draggable Physics for Floating Icon
 	local fDragging = false
 	local fDragStart
 	local fStartPos
@@ -933,10 +963,7 @@ function AstralisLib:CreateWindow(config)
 	end)
 
 	local function toggleUI()
-		playSound()
-		uiVisible = not uiVisible
-		Frame.Visible = uiVisible
-		updateModalState() -- Updates and releases shiftlock depending on visibility state
+		setUIShowing(not uiVisible)
 	end
 
 	FloatingBtn.MouseButton1Click:Connect(function()
@@ -963,8 +990,6 @@ function AstralisLib:CreateWindow(config)
 			toggleUI()
 		end
 	end)
-
-	updateModalState() -- Initial execution of shiftlock release
 
 	local WindowObj = {}
 
@@ -1222,9 +1247,10 @@ function AstralisLib:CreateWindow(config)
 			Holder.ZIndex = 3
 			Holder.Parent = Page
 
-			-- Restructured bounds: perfectly scaled labels preventing overlaps
+			-- Left aligned text label
 			local TitleLbl = Instance.new("TextLabel")
-			TitleLbl.Size = UDim2.new(1, -210, 1, 0)
+			TitleLbl.Size = UDim2.new(1, -215, 1, 0)
+			TitleLbl.Position = UDim2.new(0, 0, 0, 0)
 			TitleLbl.BackgroundTransparency = 1
 			TitleLbl.Text = name
 			TitleLbl.Font = Theme.Font
@@ -1235,10 +1261,10 @@ function AstralisLib:CreateWindow(config)
 			TitleLbl.ZIndex = 4
 			TitleLbl.Parent = Holder
 
-			-- Cleanly aligned Value Label (Moved outside the Track bar completely)
+			-- Right aligned value label placed next to the track (not inside it)
 			local ValLbl = Instance.new("TextLabel")
 			ValLbl.Size = UDim2.new(0, 45, 1, 0)
-			ValLbl.Position = UDim2.new(1, -200, 0, 0)
+			ValLbl.Position = UDim2.new(1, -205, 0, 0)
 			ValLbl.BackgroundTransparency = 1
 			ValLbl.Text = tostring(default)
 			ValLbl.Font = Theme.Font
@@ -1249,9 +1275,9 @@ function AstralisLib:CreateWindow(config)
 			ValLbl.ZIndex = 4
 			ValLbl.Parent = Holder
 
-			-- Sleeker Track (Thin UI style bar)
+			-- Clean modern track bar (150 width aligned to right)
 			local Track = Instance.new("Frame")
-			Track.Size = UDim2.new(0, 150, 0, 10)
+			Track.Size = UDim2.new(0, 150, 0, 8)
 			Track.AnchorPoint = Vector2.new(1, 0.5)
 			Track.Position = UDim2.new(1, 0, 0.5, 0)
 			Track.BackgroundColor3 = Theme.SliderBackground
@@ -1259,7 +1285,7 @@ function AstralisLib:CreateWindow(config)
 			Track.ZIndex = 4
 			Track.Parent = Holder
 
-			addCorner(Track, 5)
+			addCorner(Track, 4)
 
 			local pct = math.clamp((default - min) / (max - min), 0, 1)
 
@@ -1270,11 +1296,11 @@ function AstralisLib:CreateWindow(config)
 			Fill.ZIndex = 5
 			Fill.Parent = Track
 
-			addCorner(Fill, 5)
+			addCorner(Fill, 4)
 
-			-- Invisible dragging override button to ensure flawless hit registration
+			-- Broad invisible overlay button for flawless dragging collision
 			local Btn = Instance.new("TextButton")
-			Btn.Size = UDim2.new(1, 20, 0, 24)
+			Btn.Size = UDim2.new(1, 20, 0, 26)
 			Btn.Position = UDim2.new(0.5, 0, 0.5, 0)
 			Btn.AnchorPoint = Vector2.new(0.5, 0.5)
 			Btn.BackgroundTransparency = 1
@@ -1847,6 +1873,9 @@ function AstralisLib:CreateWindow(config)
 	WindowObj.Notify = function(self, opts)
 		return createNotify(opts)
 	end
+
+	-- Initialize default lock visibility safely
+	setUIShowing(true)
 
 	return WindowObj
 end
