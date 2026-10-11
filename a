@@ -142,7 +142,7 @@ function AstralisLib:CreateWindow(config)
 
 	addCorner(Frame, Theme.CornerRadius)
 
-	-- Central Modal Controller (Unlocks mouse safely when UI is visible)
+	-- Centralized dynamic shiftlock override controller
 	local ModalUnlocker = Instance.new("TextButton")
 	ModalUnlocker.Name = "AstralisModalUnlocker"
 	ModalUnlocker.Size = UDim2.new(0, 0, 0, 0)
@@ -152,6 +152,14 @@ function AstralisLib:CreateWindow(config)
 	ModalUnlocker.Visible = true
 	ModalUnlocker.Parent = Frame
 	noSelect(ModalUnlocker)
+
+	local uiVisible = true
+	local uiMinimized = false
+
+	local function updateModalState()
+		-- Shiftlock unlocks ONLY when the main frame is visible and not minimized
+		ModalUnlocker.Modal = (uiVisible and not uiMinimized)
+	end
 
 	local FrameScale = Instance.new("UIScale")
 	FrameScale.Parent = Frame
@@ -623,12 +631,12 @@ function AstralisLib:CreateWindow(config)
 
 	addCorner(ConfirmGui, 10)
 
-	-- Safe cursor unlocker isolated specifically for the confirm window
+	-- Safe modal unlocker isolated specifically for the confirm window popup
 	local ConfirmModal = Instance.new("TextButton")
 	ConfirmModal.Size = UDim2.new(0, 0, 0, 0)
 	ConfirmModal.BackgroundTransparency = 1
 	ConfirmModal.Text = ""
-	ConfirmModal.Modal = true
+	ConfirmModal.Modal = false -- Managed dynamically
 	ConfirmModal.Visible = true
 	ConfirmModal.Parent = ConfirmGui
 	noSelect(ConfirmModal)
@@ -716,6 +724,7 @@ function AstralisLib:CreateWindow(config)
 	end)
 
 	local function openConfirm()
+		ConfirmModal.Modal = true -- Forcefully override shiftlock
 		Dim.Visible = true
 		ConfirmGui.Visible = true
 		Dim.BackgroundTransparency = 1
@@ -730,6 +739,7 @@ function AstralisLib:CreateWindow(config)
 	end
 
 	local function closeConfirm()
+		ConfirmModal.Modal = false -- Immediately return camera capture lock
 		local t = TweenService:Create(Dim, TweenInfo.new(0.2), { BackgroundTransparency = 1 })
 		t:Play()
 
@@ -752,6 +762,8 @@ function AstralisLib:CreateWindow(config)
 
 	YesBtn.MouseButton1Click:Connect(function()
 		playSound()
+		ConfirmModal.Modal = false
+		ModalUnlocker.Modal = false
 		Blur:Destroy()
 		ConfirmScreen:Destroy()
 		NotifyScreen:Destroy()
@@ -835,9 +847,6 @@ function AstralisLib:CreateWindow(config)
 	local Pages = {}
 	local ActiveTabIndex = 1
 
-	local uiVisible = true
-	local uiMinimized = false
-
 	SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
 		local query = string.lower(SearchBox.Text)
 
@@ -871,6 +880,7 @@ function AstralisLib:CreateWindow(config)
 			Body.Visible = true
 			MinBtn.Text = "–"
 		end
+		updateModalState() -- Safely toggles modal off/on
 	end)
 
 	-- Image-Only Transparent Floating Toggle Button for Mobile/PC
@@ -926,6 +936,7 @@ function AstralisLib:CreateWindow(config)
 		playSound()
 		uiVisible = not uiVisible
 		Frame.Visible = uiVisible
+		updateModalState() -- Updates and releases shiftlock depending on visibility state
 	end
 
 	FloatingBtn.MouseButton1Click:Connect(function()
@@ -952,6 +963,8 @@ function AstralisLib:CreateWindow(config)
 			toggleUI()
 		end
 	end)
+
+	updateModalState() -- Initial execution of shiftlock release
 
 	local WindowObj = {}
 
@@ -1209,8 +1222,9 @@ function AstralisLib:CreateWindow(config)
 			Holder.ZIndex = 3
 			Holder.Parent = Page
 
+			-- Restructured bounds: perfectly scaled labels preventing overlaps
 			local TitleLbl = Instance.new("TextLabel")
-			TitleLbl.Size = UDim2.new(1, -160, 1, 0)
+			TitleLbl.Size = UDim2.new(1, -210, 1, 0)
 			TitleLbl.BackgroundTransparency = 1
 			TitleLbl.Text = name
 			TitleLbl.Font = Theme.Font
@@ -1221,8 +1235,23 @@ function AstralisLib:CreateWindow(config)
 			TitleLbl.ZIndex = 4
 			TitleLbl.Parent = Holder
 
+			-- Cleanly aligned Value Label (Moved outside the Track bar completely)
+			local ValLbl = Instance.new("TextLabel")
+			ValLbl.Size = UDim2.new(0, 45, 1, 0)
+			ValLbl.Position = UDim2.new(1, -200, 0, 0)
+			ValLbl.BackgroundTransparency = 1
+			ValLbl.Text = tostring(default)
+			ValLbl.Font = Theme.Font
+			ValLbl.TextSize = 13
+			ValLbl.TextColor3 = Theme.SliderTextColor
+			ValLbl.TextXAlignment = Enum.TextXAlignment.Right
+			ValLbl.TextYAlignment = Enum.TextYAlignment.Center
+			ValLbl.ZIndex = 4
+			ValLbl.Parent = Holder
+
+			-- Sleeker Track (Thin UI style bar)
 			local Track = Instance.new("Frame")
-			Track.Size = UDim2.new(0, 150, 0, 24)
+			Track.Size = UDim2.new(0, 150, 0, 10)
 			Track.AnchorPoint = Vector2.new(1, 0.5)
 			Track.Position = UDim2.new(1, 0, 0.5, 0)
 			Track.BackgroundColor3 = Theme.SliderBackground
@@ -1230,7 +1259,7 @@ function AstralisLib:CreateWindow(config)
 			Track.ZIndex = 4
 			Track.Parent = Holder
 
-			addCorner(Track, 4)
+			addCorner(Track, 5)
 
 			local pct = math.clamp((default - min) / (max - min), 0, 1)
 
@@ -1241,22 +1270,13 @@ function AstralisLib:CreateWindow(config)
 			Fill.ZIndex = 5
 			Fill.Parent = Track
 
-			addCorner(Fill, 4)
+			addCorner(Fill, 5)
 
-			local ValLbl = Instance.new("TextLabel")
-			ValLbl.Size = UDim2.new(1, 0, 1, 0)
-			ValLbl.BackgroundTransparency = 1
-			ValLbl.Text = tostring(default)
-			ValLbl.Font = Theme.Font
-			ValLbl.TextSize = 13
-			ValLbl.TextColor3 = Theme.SliderTextColor
-			ValLbl.TextXAlignment = Enum.TextXAlignment.Center
-			ValLbl.TextYAlignment = Enum.TextYAlignment.Center
-			ValLbl.ZIndex = 6
-			ValLbl.Parent = Track
-
+			-- Invisible dragging override button to ensure flawless hit registration
 			local Btn = Instance.new("TextButton")
-			Btn.Size = UDim2.new(1, 0, 1, 0)
+			Btn.Size = UDim2.new(1, 20, 0, 24)
+			Btn.Position = UDim2.new(0.5, 0, 0.5, 0)
+			Btn.AnchorPoint = Vector2.new(0.5, 0.5)
 			Btn.BackgroundTransparency = 1
 			Btn.Text = ""
 			Btn.AutoButtonColor = false
