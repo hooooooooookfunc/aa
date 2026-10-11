@@ -142,6 +142,17 @@ function AstralisLib:CreateWindow(config)
 
 	addCorner(Frame, Theme.CornerRadius)
 
+	-- Central Modal Controller (Unlocks mouse safely when UI is visible)
+	local ModalUnlocker = Instance.new("TextButton")
+	ModalUnlocker.Name = "AstralisModalUnlocker"
+	ModalUnlocker.Size = UDim2.new(0, 0, 0, 0)
+	ModalUnlocker.BackgroundTransparency = 1
+	ModalUnlocker.Text = ""
+	ModalUnlocker.Modal = true
+	ModalUnlocker.Visible = true
+	ModalUnlocker.Parent = Frame
+	noSelect(ModalUnlocker)
+
 	local FrameScale = Instance.new("UIScale")
 	FrameScale.Parent = Frame
 
@@ -275,7 +286,6 @@ function AstralisLib:CreateWindow(config)
 	CloseBtn.TextXAlignment = Enum.TextXAlignment.Center
 	CloseBtn.TextYAlignment = Enum.TextYAlignment.Center
 	CloseBtn.AutoButtonColor = false
-	CloseBtn.Modal = true
 	CloseBtn.ZIndex = 6
 	CloseBtn.Parent = HeaderBar
 
@@ -292,7 +302,6 @@ function AstralisLib:CreateWindow(config)
 	MinBtn.TextXAlignment = Enum.TextXAlignment.Center
 	MinBtn.TextYAlignment = Enum.TextYAlignment.Center
 	MinBtn.AutoButtonColor = false
-	MinBtn.Modal = true
 	MinBtn.ZIndex = 6
 	MinBtn.Parent = HeaderBar
 
@@ -456,7 +465,6 @@ function AstralisLib:CreateWindow(config)
 		CloseIcon.TextXAlignment = Enum.TextXAlignment.Center
 		CloseIcon.TextYAlignment = Enum.TextYAlignment.Center
 		CloseIcon.AutoButtonColor = false
-		CloseIcon.Modal = true
 		CloseIcon.Visible = closeBtnEnabled
 		CloseIcon.ZIndex = 7
 		CloseIcon.Parent = Notif
@@ -500,7 +508,6 @@ function AstralisLib:CreateWindow(config)
 				Btn.TextXAlignment = Enum.TextXAlignment.Center
 				Btn.TextYAlignment = Enum.TextYAlignment.Center
 				Btn.AutoButtonColor = false
-				Btn.Modal = true
 				Btn.LayoutOrder = i
 				Btn.ZIndex = 7
 				Btn.Parent = BtnRow
@@ -616,6 +623,16 @@ function AstralisLib:CreateWindow(config)
 
 	addCorner(ConfirmGui, 10)
 
+	-- Safe cursor unlocker isolated specifically for the confirm window
+	local ConfirmModal = Instance.new("TextButton")
+	ConfirmModal.Size = UDim2.new(0, 0, 0, 0)
+	ConfirmModal.BackgroundTransparency = 1
+	ConfirmModal.Text = ""
+	ConfirmModal.Modal = true
+	ConfirmModal.Visible = true
+	ConfirmModal.Parent = ConfirmGui
+	noSelect(ConfirmModal)
+
 	local ConfirmStroke = Instance.new("UIStroke")
 	ConfirmStroke.Color = Theme.OutlineColor
 	ConfirmStroke.Thickness = 1
@@ -647,7 +664,6 @@ function AstralisLib:CreateWindow(config)
 	YesBtn.TextXAlignment = Enum.TextXAlignment.Center
 	YesBtn.TextYAlignment = Enum.TextYAlignment.Center
 	YesBtn.AutoButtonColor = false
-	YesBtn.Modal = true
 	YesBtn.ZIndex = 3
 	YesBtn.Parent = ConfirmGui
 
@@ -666,7 +682,6 @@ function AstralisLib:CreateWindow(config)
 	NoBtn.TextXAlignment = Enum.TextXAlignment.Center
 	NoBtn.TextYAlignment = Enum.TextYAlignment.Center
 	NoBtn.AutoButtonColor = false
-	NoBtn.Modal = true
 	NoBtn.ZIndex = 3
 	NoBtn.Parent = ConfirmGui
 
@@ -956,7 +971,6 @@ function AstralisLib:CreateWindow(config)
 		TabBtn.BorderSizePixel = 0
 		TabBtn.Text = ""
 		TabBtn.AutoButtonColor = false
-		TabBtn.Modal = true
 		TabBtn.ZIndex = 4
 		TabBtn.Parent = Sidebar
 
@@ -1157,7 +1171,6 @@ function AstralisLib:CreateWindow(config)
 			Hit.BackgroundTransparency = 1
 			Hit.Text = ""
 			Hit.AutoButtonColor = false
-			Hit.Modal = true
 			Hit.ZIndex = 10
 			Hit.Parent = Holder
 
@@ -1247,7 +1260,6 @@ function AstralisLib:CreateWindow(config)
 			Btn.BackgroundTransparency = 1
 			Btn.Text = ""
 			Btn.AutoButtonColor = false
-			Btn.Modal = true
 			Btn.ZIndex = 7
 			Btn.Parent = Track
 
@@ -1306,7 +1318,6 @@ function AstralisLib:CreateWindow(config)
 			Btn.TextXAlignment = Enum.TextXAlignment.Center
 			Btn.TextYAlignment = Enum.TextYAlignment.Center
 			Btn.AutoButtonColor = false
-			Btn.Modal = true
 			Btn.ZIndex = 4
 			Btn.Parent = Holder
 
@@ -1383,7 +1394,6 @@ function AstralisLib:CreateWindow(config)
 			Btn.TextXAlignment = Enum.TextXAlignment.Center
 			Btn.TextYAlignment = Enum.TextYAlignment.Center
 			Btn.AutoButtonColor = false
-			Btn.Modal = true
 			Btn.ZIndex = 4
 			Btn.Parent = Holder
 
@@ -1524,7 +1534,6 @@ function AstralisLib:CreateWindow(config)
 			Preview.BorderSizePixel = 0
 			Preview.Text = ""
 			Preview.AutoButtonColor = false
-			Preview.Modal = true
 			Preview.ZIndex = 5
 			Preview.Parent = Holder
 
@@ -1681,7 +1690,6 @@ function AstralisLib:CreateWindow(config)
 			ResetBtn.TextXAlignment = Enum.TextXAlignment.Center
 			ResetBtn.TextYAlignment = Enum.TextYAlignment.Center
 			ResetBtn.AutoButtonColor = false
-			ResetBtn.Modal = true
 			ResetBtn.ZIndex = 21
 			ResetBtn.Parent = Popup
 
