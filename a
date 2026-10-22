@@ -1,5 +1,5 @@
 --============================================================
--- Astralis 2.6.2 — Solid Medium Grey UI Library (No Blur/Sheen)
+-- Astralis 2.6.2 — Solid Medium Grey UI Library (gethui Support)
 --============================================================
 
 local Players      = game:GetService("Players")
@@ -7,9 +7,25 @@ local UIS          = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 
 local LP = Players.LocalPlayer
-local PG = LP:WaitForChild("PlayerGui")
 
-local DEFAULT_FONT = Enum.Font.JosefinSans
+-- Function to safely get the top-level parent container (gethui)
+local function getTopContainer()
+    if gethui then
+        return gethui()
+    elseif syn and syn.protect_gui then
+        local sg = Instance.new("Folder")
+        syn.protect_gui(sg)
+        sg.Parent = game:GetService("CoreGui")
+        return sg
+    elseif game:GetService("CoreGui"):FindFirstChild("RobloxGui") then
+        return game:GetService("CoreGui")
+    else
+        return LP:WaitForChild("PlayerGui")
+    end
+end
+
+local PARENT_CONTAINER = getTopContainer()
+local DEFAULT_FONT     = Enum.Font.JosefinSans
 
 local Astralis = {}
 Astralis.Config = {}
@@ -61,8 +77,8 @@ local function initNotify()
     notifyGui = Instance.new("ScreenGui")
     notifyGui.Name = "AstralisNotifyGui"
     notifyGui.ResetOnSpawn = false
-    notifyGui.DisplayOrder = 10000
-    notifyGui.Parent = PG
+    notifyGui.DisplayOrder = 999999
+    notifyGui.Parent = PARENT_CONTAINER
 
     notifyContainer = Instance.new("Frame")
     notifyContainer.BackgroundTransparency = 1
@@ -87,8 +103,8 @@ function Astralis:CreateWindow(opts)
     local gui = Instance.new("ScreenGui")
     gui.Name = "AstralisUI"
     gui.ResetOnSpawn = false
-    gui.DisplayOrder = 9999
-    gui.Parent = PG
+    gui.DisplayOrder = 99999
+    gui.Parent = PARENT_CONTAINER
 
     local win = Instance.new("Frame")
     win.Size = UDim2.new(0, width, 0, height)
