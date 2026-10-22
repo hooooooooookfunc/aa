@@ -1,5 +1,5 @@
 --============================================================
--- Astralis 2.6.2 — Solid Grey Theme UI Library Module
+-- Astralis 2.6.2 — Light Grey Theme UI Library Module
 --============================================================
 
 local Players      = game:GetService("Players")
@@ -23,11 +23,11 @@ local function corner(p, r)
     return c
 end
 
-local function addRichGreyGradient(parent)
+local function addLightGreyGradient(parent)
     local grad = Instance.new("UIGradient")
     grad.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(58, 58, 58)), -- Medium Soft Grey
-        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(32, 32, 32))  -- Deep Solid Grey
+        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(230, 230, 232)), -- Light Grey Top
+        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(190, 190, 195))  -- Mid Light Grey Bottom
     })
     grad.Rotation = 45
     grad.Parent = parent
@@ -40,7 +40,7 @@ local function blur(parent, transparency)
     img.Size = UDim2.fromScale(1, 1)
     img.Position = UDim2.fromScale(0, 0)
     img.Image = BLUR_ASSET
-    img.ImageTransparency = transparency or 0.55
+    img.ImageTransparency = transparency or 0.6
     img.ScaleType = Enum.ScaleType.Slice
     img.SliceCenter = Rect.new(10, 10, 100, 100)
     img.ZIndex = parent.ZIndex
@@ -120,25 +120,25 @@ function Astralis:CreateWindow(opts)
     local win = Instance.new("Frame")
     win.Size = UDim2.new(0, width, 0, height)
     win.Position = UDim2.fromScale(0.35, 0.32)
-    win.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    win.BackgroundColor3 = Color3.fromRGB(225, 225, 228)
     win.BackgroundTransparency = 0.05
     win.BorderSizePixel = 0
     win.Active = true
     win.ZIndex = 2
     win.Parent = gui
     corner(win)
-    addRichGreyGradient(win)
+    addLightGreyGradient(win)
     blur(win)
 
     local title = Instance.new("Frame")
     title.Size = UDim2.new(1, 0, 0, 28)
-    title.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    title.BackgroundTransparency = 0.15
+    title.BackgroundColor3 = Color3.fromRGB(205, 205, 210)
+    title.BackgroundTransparency = 0.1
     title.BorderSizePixel = 0
     title.ZIndex = 10
     title.Parent = win
     corner(title)
-    addRichGreyGradient(title)
+    addLightGreyGradient(title)
     blur(title)
 
     local titleLabel = Instance.new("TextLabel")
@@ -146,7 +146,7 @@ function Astralis:CreateWindow(opts)
     titleLabel.Size = UDim2.fromScale(1, 1)
     titleLabel.Font = font
     titleLabel.Text = titleText
-    titleLabel.TextColor3 = Color3.new(1, 1, 1)
+    titleLabel.TextColor3 = Color3.fromRGB(30, 30, 30)
     titleLabel.TextSize = 14
     titleLabel.ZIndex = 11
     titleLabel.Parent = title
@@ -154,11 +154,11 @@ function Astralis:CreateWindow(opts)
     local close = Instance.new("ImageButton")
     close.Size = UDim2.new(0, 16, 0, 16)
     close.Position = UDim2.new(1, -22, 0, 6)
-    close.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    close.BackgroundColor3 = Color3.fromRGB(170, 170, 175)
     close.BackgroundTransparency = 0.5
     close.BorderSizePixel = 0
     close.Image = "rbxassetid://10002373478"
-    close.ImageColor3 = Color3.fromRGB(240, 240, 240)
+    close.ImageColor3 = Color3.fromRGB(30, 30, 30)
     close.ZIndex = 12
     close.Parent = title
     corner(close, 5)
@@ -167,11 +167,11 @@ function Astralis:CreateWindow(opts)
     local mini = Instance.new("ImageButton")
     mini.Size = UDim2.new(0, 16, 0, 16)
     mini.Position = UDim2.new(1, -42, 0, 6)
-    mini.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    mini.BackgroundColor3 = Color3.fromRGB(170, 170, 175)
     mini.BackgroundTransparency = 0.5
     mini.BorderSizePixel = 0
     mini.Image = "rbxassetid://848237313"
-    mini.ImageColor3 = Color3.fromRGB(240, 240, 240)
+    mini.ImageColor3 = Color3.fromRGB(30, 30, 30)
     mini.ZIndex = 12
     mini.Parent = title
     corner(mini, 5)
@@ -207,13 +207,13 @@ function Astralis:CreateWindow(opts)
     local footer = Instance.new("Frame")
     footer.Size = UDim2.new(1, 0, 0, 26)
     footer.Position = UDim2.new(0, 0, 1, -26)
-    footer.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    footer.BackgroundTransparency = 0.15
+    footer.BackgroundColor3 = Color3.fromRGB(205, 205, 210)
+    footer.BackgroundTransparency = 0.1
     footer.BorderSizePixel = 0
     footer.ZIndex = 10
     footer.Parent = win
     corner(footer)
-    addRichGreyGradient(footer)
+    addLightGreyGradient(footer)
     blur(footer)
 
     local footerLbl = Instance.new("TextLabel")
@@ -222,7 +222,7 @@ function Astralis:CreateWindow(opts)
     footerLbl.Position = UDim2.new(0, 8, 0, 0)
     footerLbl.Font = font
     footerLbl.Text = opts.Footer or "RightShift to toggle  •  drag title bar to move"
-    footerLbl.TextColor3 = Color3.fromRGB(200, 200, 200)
+    footerLbl.TextColor3 = Color3.fromRGB(60, 60, 60)
     footerLbl.TextSize = 11
     footerLbl.TextXAlignment = Enum.TextXAlignment.Left
     footerLbl.ZIndex = 11
@@ -261,13 +261,13 @@ function Astralis:CreateWindow(opts)
 
         local nFrame = Instance.new("Frame")
         nFrame.Size = UDim2.new(1, 0, 0, 50)
-        nFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+        nFrame.BackgroundColor3 = Color3.fromRGB(225, 225, 228)
         nFrame.BackgroundTransparency = 0.1
         nFrame.BorderSizePixel = 0
         nFrame.ZIndex = 101
         nFrame.Parent = notifyContainer
         corner(nFrame, 6)
-        addRichGreyGradient(nFrame)
+        addLightGreyGradient(nFrame)
         blur(nFrame)
 
         local nTitle = Instance.new("TextLabel")
@@ -276,7 +276,7 @@ function Astralis:CreateWindow(opts)
         nTitle.BackgroundTransparency = 1
         nTitle.Font = font
         nTitle.Text = nOpts.Title or "Notification"
-        nTitle.TextColor3 = Color3.new(1, 1, 1)
+        nTitle.TextColor3 = Color3.fromRGB(25, 25, 25)
         nTitle.TextSize = 12
         nTitle.TextXAlignment = Enum.TextXAlignment.Left
         nTitle.ZIndex = 102
@@ -288,7 +288,7 @@ function Astralis:CreateWindow(opts)
         nText.BackgroundTransparency = 1
         nText.Font = font
         nText.Text = nOpts.Text or ""
-        nText.TextColor3 = Color3.fromRGB(200, 200, 200)
+        nText.TextColor3 = Color3.fromRGB(70, 70, 70)
         nText.TextSize = 11
         nText.TextXAlignment = Enum.TextXAlignment.Left
         nText.ZIndex = 102
@@ -308,7 +308,7 @@ function Astralis:CreateWindow(opts)
             activeTab.Page.Visible = false
             tween(activeTab.Button, 0.15, {
                 BackgroundTransparency = 0.5,
-                TextColor3 = Color3.fromRGB(170, 170, 170),
+                TextColor3 = Color3.fromRGB(90, 90, 90),
             })
         end
         local t = tabs[name]
@@ -316,20 +316,20 @@ function Astralis:CreateWindow(opts)
         activeTab = t
         t.Page.Visible = true
         tween(t.Button, 0.15, {
-            BackgroundTransparency = 0.2,
-            TextColor3 = Color3.new(1, 1, 1),
+            BackgroundTransparency = 0.15,
+            TextColor3 = Color3.fromRGB(15, 15, 15),
         })
     end
 
     function WindowObj:CreateTab(name)
         local btn = Instance.new("TextButton")
         btn.Size = UDim2.new(1, 0, 0, 26)
-        btn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+        btn.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
         btn.BackgroundTransparency = 0.5
         btn.BorderSizePixel = 0
         btn.Font = font
         btn.Text = name
-        btn.TextColor3 = Color3.fromRGB(170, 170, 170)
+        btn.TextColor3 = Color3.fromRGB(90, 90, 90)
         btn.TextSize = 12
         btn.TextXAlignment = Enum.TextXAlignment.Left
         btn.AutoButtonColor = false
@@ -346,7 +346,7 @@ function Astralis:CreateWindow(opts)
         page.BorderSizePixel = 0
         page.Size = UDim2.fromScale(1, 1)
         page.ScrollBarThickness = 3
-        page.ScrollBarImageColor3 = Color3.fromRGB(110, 110, 110)
+        page.ScrollBarImageColor3 = Color3.fromRGB(150, 150, 150)
         page.CanvasSize = UDim2.new(0, 0, 0, 0)
         page.Visible = false
         page.ZIndex = 6
@@ -374,7 +374,7 @@ function Astralis:CreateWindow(opts)
             local state = o.Default or false
             local row = Instance.new("TextButton")
             row.Size = UDim2.new(1, 0, 0, 24)
-            row.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+            row.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
             row.BackgroundTransparency = 0.4
             row.BorderSizePixel = 0
             row.AutoButtonColor = false
@@ -382,12 +382,12 @@ function Astralis:CreateWindow(opts)
             row.ZIndex = 7
             row.Parent = self.Page
             corner(row, 5)
-            addRichGreyGradient(row)
+            addLightGreyGradient(row)
 
             local dot = Instance.new("Frame")
             dot.Size = UDim2.new(0, 12, 0, 12)
             dot.Position = UDim2.new(0, 6, 0.5, -6)
-            dot.BackgroundColor3 = state and Color3.fromRGB(80, 200, 80) or Color3.fromRGB(110, 110, 110)
+            dot.BackgroundColor3 = state and Color3.fromRGB(50, 180, 50) or Color3.fromRGB(150, 150, 150)
             dot.BorderSizePixel = 0
             dot.ZIndex = 8
             dot.Parent = row
@@ -399,7 +399,7 @@ function Astralis:CreateWindow(opts)
             lab.Position = UDim2.new(0, 24, 0, 0)
             lab.Font = font
             lab.Text = o.Name or o.Text or "Toggle"
-            lab.TextColor3 = Color3.new(1, 1, 1)
+            lab.TextColor3 = Color3.fromRGB(25, 25, 25)
             lab.TextSize = 12
             lab.TextXAlignment = Enum.TextXAlignment.Left
             lab.ZIndex = 8
@@ -407,7 +407,7 @@ function Astralis:CreateWindow(opts)
 
             local function set(v)
                 state = v
-                dot.BackgroundColor3 = state and Color3.fromRGB(80, 200, 80) or Color3.fromRGB(110, 110, 110)
+                dot.BackgroundColor3 = state and Color3.fromRGB(50, 180, 50) or Color3.fromRGB(150, 150, 150)
                 if o.Callback then task.spawn(o.Callback, state) end
             end
             row.MouseButton1Click:Connect(function() set(not state) end)
@@ -423,14 +423,14 @@ function Astralis:CreateWindow(opts)
 
             local f = Instance.new("Frame")
             f.Size = UDim2.new(1, 0, 0, 24)
-            f.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+            f.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
             f.BackgroundTransparency = 0.4
             f.BorderSizePixel = 0
             f.ClipsDescendants = true
             f.ZIndex = 15
             f.Parent = self.Page
             corner(f, 5)
-            addRichGreyGradient(f)
+            addLightGreyGradient(f)
 
             local header = Instance.new("TextButton")
             header.Size = UDim2.fromScale(1, 1)
@@ -445,7 +445,7 @@ function Astralis:CreateWindow(opts)
             lab.Position = UDim2.new(0, 8, 0, 0)
             lab.Font = font
             lab.Text = (o.Name or o.Text or "Option") .. ": " .. tostring(selected)
-            lab.TextColor3 = Color3.new(1, 1, 1)
+            lab.TextColor3 = Color3.fromRGB(25, 25, 25)
             lab.TextSize = 12
             lab.TextXAlignment = Enum.TextXAlignment.Left
             lab.ZIndex = 16
@@ -457,7 +457,7 @@ function Astralis:CreateWindow(opts)
             arrow.Position = UDim2.new(1, -18, 0, 0)
             arrow.Font = font
             arrow.Text = "v"
-            arrow.TextColor3 = Color3.new(1, 1, 1)
+            arrow.TextColor3 = Color3.fromRGB(25, 25, 25)
             arrow.TextSize = 12
             arrow.ZIndex = 16
             arrow.Parent = f
@@ -480,12 +480,12 @@ function Astralis:CreateWindow(opts)
                 for _, opt in ipairs(options) do
                     local b = Instance.new("TextButton")
                     b.Size = UDim2.new(1, 0, 0, 20)
-                    b.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-                    b.BackgroundTransparency = 0.4
+                    b.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
+                    b.BackgroundTransparency = 0.3
                     b.BorderSizePixel = 0
                     b.Font = font
                     b.Text = tostring(opt)
-                    b.TextColor3 = Color3.new(1, 1, 1)
+                    b.TextColor3 = Color3.fromRGB(25, 25, 25)
                     b.TextSize = 11
                     b.TextXAlignment = Enum.TextXAlignment.Left
                     b.ZIndex = 16
@@ -525,13 +525,13 @@ function Astralis:CreateWindow(opts)
 
             local f = Instance.new("Frame")
             f.Size = UDim2.new(1, 0, 0, 36)
-            f.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+            f.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
             f.BackgroundTransparency = 0.4
             f.BorderSizePixel = 0
             f.ZIndex = 7
             f.Parent = self.Page
             corner(f, 5)
-            addRichGreyGradient(f)
+            addLightGreyGradient(f)
 
             local lab = Instance.new("TextLabel")
             lab.BackgroundTransparency = 1
@@ -539,7 +539,7 @@ function Astralis:CreateWindow(opts)
             lab.Position = UDim2.new(0, 6, 0, 2)
             lab.Font = font
             lab.Text = (o.Name or o.Text or "Slider") .. "  •  " .. tostring(value) .. suffix
-            lab.TextColor3 = Color3.new(1, 1, 1)
+            lab.TextColor3 = Color3.fromRGB(25, 25, 25)
             lab.TextSize = 11
             lab.TextXAlignment = Enum.TextXAlignment.Left
             lab.ZIndex = 8
@@ -548,7 +548,7 @@ function Astralis:CreateWindow(opts)
             local track = Instance.new("Frame")
             track.Size = UDim2.new(1, -12, 0, 4)
             track.Position = UDim2.new(0, 6, 1, -10)
-            track.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+            track.BackgroundColor3 = Color3.fromRGB(160, 160, 165)
             track.BorderSizePixel = 0
             track.ZIndex = 8
             track.Parent = f
@@ -556,7 +556,7 @@ function Astralis:CreateWindow(opts)
 
             local fill = Instance.new("Frame")
             fill.Size = UDim2.new((value - min) / (max - min), 0, 1, 0)
-            fill.BackgroundColor3 = Color3.new(1, 1, 1)
+            fill.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
             fill.BorderSizePixel = 0
             fill.ZIndex = 9
             fill.Parent = track
@@ -591,7 +591,7 @@ function Astralis:CreateWindow(opts)
                     local rel = (value - min) / (max - min)
                     fill.Size = UDim2.new(rel, 0, 1, 0)
                     lab.Text = (o.Name or o.Text or "Slider") .. "  •  " .. tostring(value) .. suffix
-                    if o.Callback then task.spawn(o.Callback, value) end
+                    if o.Callback then task.spawn(o.Callback, v) end
                 end,
                 Get = function() return value end,
             }
@@ -601,13 +601,13 @@ function Astralis:CreateWindow(opts)
             o = o or {}
             local f = Instance.new("Frame")
             f.Size = UDim2.new(1, 0, 0, 36)
-            f.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+            f.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
             f.BackgroundTransparency = 0.4
             f.BorderSizePixel = 0
             f.ZIndex = 7
             f.Parent = self.Page
             corner(f, 5)
-            addRichGreyGradient(f)
+            addLightGreyGradient(f)
 
             local box = Instance.new("TextBox")
             box.BackgroundTransparency = 1
@@ -616,8 +616,8 @@ function Astralis:CreateWindow(opts)
             box.Font = font
             box.PlaceholderText = o.Placeholder or o.Name or "Type..."
             box.Text = o.Default or ""
-            box.TextColor3 = Color3.new(1, 1, 1)
-            box.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+            box.TextColor3 = Color3.fromRGB(25, 25, 25)
+            box.PlaceholderColor3 = Color3.fromRGB(110, 110, 110)
             box.TextSize = 12
             box.TextXAlignment = Enum.TextXAlignment.Left
             box.ClearTextOnFocus = false
@@ -637,18 +637,18 @@ function Astralis:CreateWindow(opts)
             o = o or {}
             local b = Instance.new("TextButton")
             b.Size = UDim2.new(1, 0, 0, 24)
-            b.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+            b.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
             b.BackgroundTransparency = 0.4
             b.BorderSizePixel = 0
             b.Font = font
             b.Text = o.Name or o.Text or "Button"
-            b.TextColor3 = Color3.new(1, 1, 1)
+            b.TextColor3 = Color3.fromRGB(25, 25, 25)
             b.TextSize = 12
             b.AutoButtonColor = false
             b.ZIndex = 7
             b.Parent = self.Page
             corner(b, 5)
-            addRichGreyGradient(b)
+            addLightGreyGradient(b)
             b.MouseEnter:Connect(function() tween(b, 0.2, { BackgroundTransparency = 0.2 }) end)
             b.MouseLeave:Connect(function() tween(b, 0.2, { BackgroundTransparency = 0.4 }) end)
             b.MouseButton1Click:Connect(function() if o.Callback then task.spawn(o.Callback) end end)
